@@ -1,0 +1,72 @@
+# Project Template Configuration
+
+# Application settings
+app:
+  name: "Project Template"
+  version: "0.1.0"
+  description: "A generic template for data science and ML projects"
+  debug: false
+  log_level: "INFO"
+
+# Data processing settings
+data:
+  input_dir: "dataset/raw"
+  output_dir: "dataset/processed"
+  cache_dir: "dataset/cache"
+  formats:
+    - "csv"
+    - "json"
+    - "excel"
+  sampling:
+    enabled: false
+    sample_size: 1000
+    random_seed: 42
+
+# Model settings
+model:
+  type: "classifier"
+  algorithm: "random_forest"
+  hyperparameters:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 2
+    random_state: 42
+  evaluation:
+    metrics:
+      - "accuracy"
+      - "precision"
+      - "recall"
+      - "f1"
+    test_size: 0.2
+    cross_validation: 5
+
+# Visualization settings
+visualization:
+  theme: "default"
+  colormap: "viridis"
+  dpi: 100
+  formats:
+    - "png"
+    - "pdf"
+  interactive: true
+
+# API settings
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  timeout: 30
+  cors:
+    allowed_origins: "*"
+
+# Streamlit settings
+streamlit:
+  theme:
+    primaryColor: "#1E88E5"
+    backgroundColor: "#FFFFFF"
+    secondaryBackgroundColor: "#F0F2F6"
+    textColor: "#262730"
+  page:
+    title: "Project Dashboard"
+    layout: "wide"
+    initial_sidebar_state: "expanded"

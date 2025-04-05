@@ -1,0 +1,73 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+.coverage.*
+coverage.xml
+*.cover
+.tox/
+nosetests.xml
+
+# Distribution / packaging
+dist/
+build/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv
+venv/
+.python-version
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE specific files
+.idea/
+.vscode/
+.codemap
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Local data files
+dataset/
+
+# Environment variables
+
+# Database files
+
+# Docker volumes
+data-volume/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Documentation builds
+/site/
+/docs/_build/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv

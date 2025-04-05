@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: setup_config/docker/Dockerfile
+    ports:
+      - "8000:8000"
+      - "8501:8501"
+    volumes:
+      - ../../dataset:/app/dataset
+      - ../../logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      # Add your environment variables below
+      - EXAMPLE_API_KEY=${EXAMPLE_API_KEY}
+    restart: unless-stopped
+    # Choose the appropriate command based on your application type
+    # For a Python script:
+    command: python -m src.main
+    # For a Streamlit app (uncomment to use):
+    # command: streamlit run src/visualization/app.py
+
+  # Development service with hot-reload capabilities
+  dev:
+    build:
+      context: ../..
+      dockerfile: setup_config/docker/Dockerfile
+    ports:
+      - "8000:8000"
+      - "8501:8501"
+    volumes:
+      - ../..:/app
+    environment:
+      - PYTHONPATH=/app
+      - DEVELOPMENT=true
+      # Add your environment variables below
+      - EXAMPLE_API_KEY=${EXAMPLE_API_KEY}
+    # For development with auto-reload capabilities
+    command: python -m src.main --reload
+    profiles:
+      - dev
+
+  # Command-line interface for your application
+  cli:
+    build:
+      context: ../..
+      dockerfile: setup_config/docker/Dockerfile
+    volumes:
+      - ../../dataset:/app/dataset
+      - ../../logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      # Add your environment variables below
+      - EXAMPLE_API_KEY=${EXAMPLE_API_KEY}
+    # Example CLI command - modify according to your application
+    command: python -m src.cli
+    profiles:
+      - cli
+
+  # Test runner service
+  test:
+    build:
+      context: ../..
+      dockerfile: setup_config/docker/Dockerfile
+    volumes:
+      - ../..:/app
+    environment:
+      - PYTHONPATH=/app
+      - TESTING=true
+    command: pytest
+    profiles:
+      - test

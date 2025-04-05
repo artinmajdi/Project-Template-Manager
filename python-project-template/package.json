@@ -1,0 +1,48 @@
+{
+  "name": "python-project-template",
+  "displayName": "python_project_template",
+  "description": "Python Project Template Manager is a VS Code extension that allows developers to save entire project structures as reusable templates, create new projects from these templates, or selectively integrate specific files and folders into existing projects. It streamlines project setup, promotes consistent organization, and helps teams maintain standardized practices across Python projects.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:python-project-template.createFullProject",
+    "onCommand:python-project-template.addTemplateItems"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "python-project-template.createFullProject",
+        "title": "Python Template: Create Full Project"
+      },
+      {
+        "command": "python-project-template.addTemplateItems",
+        "title": "Python Template: Add Files/Folders from Template"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.96.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "eslint": "^9.23.0",
+    "typescript": "^5.8.2",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  }
+}
