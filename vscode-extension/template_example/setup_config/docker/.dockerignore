@@ -1,0 +1,83 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment variables
+.env
+.venv
+venv/
+ENV/
+env/
+.python-version
+.conda/
+.env.local
+.env.*.local
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.tox/
+nosetests.xml
+
+# Distribution and packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Logs
+logs/
+*.log
+
+# Dataset (since we're mounting it as a volume)
+dataset/raw/
+dataset/processed/
+*.csv
+*.tsv
+*.parquet
+*.json
+*.npy
+*.npz
+*.pkl
+*.feather
+*.h5
+*.hdf5
+*.db
+*.sqlite
+
+# Docker
+.dockerignore
+setup_config/docker/
+!setup_config/docker/Dockerfile
+!setup_config/docker/docker-compose.yml
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+notebooks/
+temp/
+tmp/
+
+# Documentation and doc build
+site/
+docs/_build/
+
+# Allow these files explicitly
+!setup_config/requirements.txt
+!setup_config/.env.example

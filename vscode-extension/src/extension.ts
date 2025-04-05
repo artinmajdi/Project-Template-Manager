@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { TemplateExplorerProvider, TemplateManager, TemplateTreeItem } from './templateExplorer';
 
 // Helper function to recursively copy a directory
 async function copyFolderRecursive(source: string, target: string, exclude: string[] = []): Promise<void> {
@@ -41,11 +42,71 @@ function copyFile(source: string, targetDir: string, fileName: string): void {
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Extension "project-template-manager" is activating.');
 
-	const templateSourceDir = context.extensionPath; // The root of the extension IS the template
-	const excludeItems = ['.git', '.vscode', 'node_modules', 'out', '.DS_Store', '.vscodeignore', '.gitignore', 'package.json', 'package-lock.json', 'tsconfig.json', 'eslint.config.mjs', '.vscode-test.mjs', 'CHANGELOG.md', 'vsc-extension-quickstart.md', 'README.md', 'src']; // Items to exclude when copying
+	// Initialize template manager
+	const templateManager = new TemplateManager(context);
+
+	// Set up template explorer
+	const workspaceRoot = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
+		? vscode.workspace.workspaceFolders[0].uri.fsPath
+		: '';
+	const templateExplorerProvider = new TemplateExplorerProvider(workspaceRoot, context);
+
+	// Register the TreeDataProvider for the sidebar view
+	vscode.window.registerTreeDataProvider('projectTemplateExplorer', templateExplorerProvider);
+
+	// Install default template if available
+	const defaultTemplatePath = path.join(context.extensionPath, 'template_example');
+	if (fs.existsSync(defaultTemplatePath)) {
+		templateManager.installDefaultTemplate(defaultTemplatePath).then(() => {
+			templateExplorerProvider.refresh();
+		});
+	}
+
+	const excludeItems = ['.git', '.vscode', 'node_modules', 'out', '.DS_Store', '.vscodeignore', '.gitignore', 'package.json', 'package-lock.json', 'tsconfig.json', 'eslint.config.mjs', '.vscode-test.mjs', 'CHANGELOG.md', 'vsc-extension-quickstart.md']; // Items to exclude when copying
 
 	// Command: Create Full Project
-	const createFullProjectCommand = vscode.commands.registerCommand('project-template-manager.createFullProject', async () => {
+	const createFullProjectCommand = vscode.commands.registerCommand('project-template-manager.createFullProject', async (node?: TemplateTreeItem) => {
+		let selectedTemplate: string | undefined;
+
+		// If command was triggered from the tree view
+		if (node && node.contextValue === 'template') {
+			selectedTemplate = node.templatePath;
+		} else {
+			// Show a quick pick to select a template
+			const templatesDir = path.join(context.globalStorageUri.fsPath, 'templates');
+			if (!fs.existsSync(templatesDir)) {
+				vscode.window.showErrorMessage('No templates available. Please add a template first.');
+				return;
+			}
+
+			const templates = fs.readdirSync(templatesDir, { withFileTypes: true })
+				.filter(dirent => dirent.isDirectory())
+				.map(dirent => ({
+					label: dirent.name,
+					description: 'Template',
+					path: path.join(templatesDir, dirent.name)
+				}));
+
+			if (templates.length === 0) {
+				vscode.window.showErrorMessage('No templates available. Please add a template first.');
+				return;
+			}
+
+			const selectedOption = await vscode.window.showQuickPick(templates, {
+				placeHolder: 'Select a template to use',
+			});
+
+			if (!selectedOption) {
+				return; // User cancelled
+			}
+
+			selectedTemplate = selectedOption.path;
+		}
+
+		if (!selectedTemplate) {
+			return;
+		}
+
 		const options: vscode.OpenDialogOptions = {
 			canSelectMany: false,
 			openLabel: 'Select Folder to Create Project In',
@@ -76,7 +137,7 @@ export function activate(context: vscode.ExtensionContext) {
 					cancellable: false
 				}, async (progress) => {
 					progress.report({ increment: 0, message: 'Copying template files...' });
-					await copyFolderRecursive(templateSourceDir, targetDir, excludeItems);
+					await copyFolderRecursive(selectedTemplate!, targetDir, []);
 					progress.report({ increment: 100, message: 'Project created successfully.' });
 					vscode.window.showInformationMessage(`Project "${projectName}" created successfully at ${targetDir}`);
 					// Optional: Open the newly created folder
@@ -93,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	// Command: Add Template Items
-	const addTemplateItemsCommand = vscode.commands.registerCommand('project-template-manager.addTemplateItems', async () => {
+	const addTemplateItemsCommand = vscode.commands.registerCommand('project-template-manager.addTemplateItems', async (node?: TemplateTreeItem) => {
 		const workspaceFolders = vscode.workspace.workspaceFolders;
 		if (!workspaceFolders || workspaceFolders.length === 0) {
 			vscode.window.showErrorMessage('Cannot add template items: Please open a workspace folder first.');
@@ -102,15 +163,55 @@ export function activate(context: vscode.ExtensionContext) {
 		// For simplicity, using the first workspace folder if multiple exist
 		const targetWorkspaceDir = workspaceFolders[0].uri.fsPath;
 
+		let selectedTemplate: string | undefined;
+
+		// If command was triggered from the tree view
+		if (node && node.contextValue === 'template') {
+			selectedTemplate = node.templatePath;
+		} else {
+			// Show a quick pick to select a template
+			const templatesDir = path.join(context.globalStorageUri.fsPath, 'templates');
+			if (!fs.existsSync(templatesDir)) {
+				vscode.window.showErrorMessage('No templates available. Please add a template first.');
+				return;
+			}
+
+			const templates = fs.readdirSync(templatesDir, { withFileTypes: true })
+				.filter(dirent => dirent.isDirectory())
+				.map(dirent => ({
+					label: dirent.name,
+					description: 'Template',
+					path: path.join(templatesDir, dirent.name)
+				}));
+
+			if (templates.length === 0) {
+				vscode.window.showErrorMessage('No templates available. Please add a template first.');
+				return;
+			}
+
+			const selectedOption = await vscode.window.showQuickPick(templates, {
+				placeHolder: 'Select a template to use',
+			});
+
+			if (!selectedOption) {
+				return; // User cancelled
+			}
+
+			selectedTemplate = selectedOption.path;
+		}
+
+		if (!selectedTemplate) {
+			return;
+		}
+
 		try {
-			const templateEntries = fs.readdirSync(templateSourceDir, { withFileTypes: true })
-				.filter(entry => !excludeItems.includes(entry.name))
+			const templateEntries = fs.readdirSync(selectedTemplate, { withFileTypes: true })
 				.map(entry => ({
 					label: entry.name,
 					description: entry.isDirectory() ? 'Folder' : 'File',
 					picked: false, // Default state
 					isDirectory: entry.isDirectory(),
-					sourcePath: path.join(templateSourceDir, entry.name)
+					sourcePath: path.join(selectedTemplate!, entry.name)
 				}));
 
 			if (templateEntries.length === 0) {
@@ -171,7 +272,95 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(createFullProjectCommand, addTemplateItemsCommand);
+	// Command: Refresh Templates
+	const refreshTemplatesCommand = vscode.commands.registerCommand('project-template-manager.refreshTemplates', () => {
+		templateExplorerProvider.refresh();
+	});
+
+	// Command: Add Template
+	const addTemplateCommand = vscode.commands.registerCommand('project-template-manager.addTemplate', async () => {
+		const options: vscode.OpenDialogOptions = {
+			canSelectMany: false,
+			openLabel: 'Select Folder to Use as Template',
+			canSelectFiles: false,
+			canSelectFolders: true,
+		};
+
+		const folderUri = await vscode.window.showOpenDialog(options);
+		if (folderUri && folderUri.length > 0) {
+			const sourcePath = folderUri[0].fsPath;
+
+			// Ask for template name
+			const defaultName = path.basename(sourcePath);
+			const templateName = await vscode.window.showInputBox({
+				prompt: 'Enter a name for the template',
+				value: defaultName
+			});
+
+			if (!templateName) {
+				vscode.window.showInformationMessage('Template creation cancelled.');
+				return;
+			}
+
+			try {
+				vscode.window.withProgress({
+					location: vscode.ProgressLocation.Notification,
+					title: `Adding template "${templateName}"...`,
+					cancellable: false
+				}, async (progress) => {
+					const result = await templateManager.addTemplate(sourcePath, templateName);
+					if (result) {
+						templateExplorerProvider.refresh();
+						vscode.window.showInformationMessage(`Template "${templateName}" added successfully.`);
+					} else {
+						vscode.window.showErrorMessage(`Failed to add template "${templateName}".`);
+					}
+				});
+			} catch (error: any) {
+				console.error('Error adding template:', error);
+				vscode.window.showErrorMessage(`Error adding template: ${error.message}`);
+			}
+		}
+	});
+
+	// Command: Delete Template
+	const deleteTemplateCommand = vscode.commands.registerCommand('project-template-manager.deleteTemplate', async (node?: TemplateTreeItem) => {
+		if (!node || node.contextValue !== 'template') {
+			vscode.window.showErrorMessage('Please select a template to delete from the template explorer.');
+			return;
+		}
+
+		const templateName = node.label;
+
+		const confirmation = await vscode.window.showWarningMessage(
+			`Are you sure you want to delete the template "${templateName}"?`,
+			{ modal: true },
+			'Delete'
+		);
+
+		if (confirmation === 'Delete') {
+			try {
+				const success = templateManager.deleteTemplate(templateName);
+				if (success) {
+					templateExplorerProvider.refresh();
+					vscode.window.showInformationMessage(`Template "${templateName}" deleted successfully.`);
+				} else {
+					vscode.window.showErrorMessage(`Failed to delete template "${templateName}".`);
+				}
+			} catch (error: any) {
+				console.error('Error deleting template:', error);
+				vscode.window.showErrorMessage(`Error deleting template: ${error.message}`);
+			}
+		}
+	});
+
+	context.subscriptions.push(
+		createFullProjectCommand,
+		addTemplateItemsCommand,
+		refreshTemplatesCommand,
+		addTemplateCommand,
+		deleteTemplateCommand
+	);
 
 	console.log('Extension "project-template-manager" is now active!');
 }
