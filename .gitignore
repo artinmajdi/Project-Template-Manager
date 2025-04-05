@@ -71,3 +71,6 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+
+# Node.js dependencies
+node_modules/

@@ -1,8 +1,10 @@
 {
-  "name": "python-project-template",
-  "displayName": "python_project_template",
-  "description": "Python Project Template Manager is a VS Code extension that allows developers to save entire project structures as reusable templates, create new projects from these templates, or selectively integrate specific files and folders into existing projects. It streamlines project setup, promotes consistent organization, and helps teams maintain standardized practices across Python projects.",
-  "version": "0.0.1",
+  "name": "project-template-manager",
+  "displayName": "Project Template Manager",
+  "description": "Project Template Manager is a VS Code extension that allows developers to save entire project structures as reusable templates, create new projects from these templates, or selectively integrate specific files and folders into existing projects. It streamlines project setup, promotes consistent organization, and helps teams maintain standardized practices across projects.",
+  "version": "1.0.0",
+  "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",
+  "publisher": "artinmajdi",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -10,19 +12,19 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:python-project-template.createFullProject",
-    "onCommand:python-project-template.addTemplateItems"
+    "onCommand:project-template-manager.createFullProject",
+    "onCommand:project-template-manager.addTemplateItems"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "python-project-template.createFullProject",
-        "title": "Python Template: Create Full Project"
+        "command": "project-template-manager.createFullProject",
+        "title": "Project Template: Create Full Project"
       },
       {
-        "command": "python-project-template.addTemplateItems",
-        "title": "Python Template: Add Files/Folders from Template"
+        "command": "project-template-manager.addTemplateItems",
+        "title": "Project Template: Add Files/Folders from Template"
       }
     ]
   },

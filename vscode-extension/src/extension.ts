@@ -39,13 +39,13 @@ function copyFile(source: string, targetDir: string, fileName: string): void {
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	console.log('Extension "python-project-template" is activating.');
+	console.log('Extension "project-template-manager" is activating.');
 
 	const templateSourceDir = context.extensionPath; // The root of the extension IS the template
 	const excludeItems = ['.git', '.vscode', 'node_modules', 'out', '.DS_Store', '.vscodeignore', '.gitignore', 'package.json', 'package-lock.json', 'tsconfig.json', 'eslint.config.mjs', '.vscode-test.mjs', 'CHANGELOG.md', 'vsc-extension-quickstart.md', 'README.md', 'src']; // Items to exclude when copying
 
 	// Command: Create Full Project
-	const createFullProjectCommand = vscode.commands.registerCommand('python-project-template.createFullProject', async () => {
+	const createFullProjectCommand = vscode.commands.registerCommand('project-template-manager.createFullProject', async () => {
 		const options: vscode.OpenDialogOptions = {
 			canSelectMany: false,
 			openLabel: 'Select Folder to Create Project In',
@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
 					progress.report({ increment: 0, message: 'Copying template files...' });
 					await copyFolderRecursive(templateSourceDir, targetDir, excludeItems);
 					progress.report({ increment: 100, message: 'Project created successfully.' });
-					vscode.window.showInformationMessage(`Python project "${projectName}" created successfully at ${targetDir}`);
+					vscode.window.showInformationMessage(`Project "${projectName}" created successfully at ${targetDir}`);
 					// Optional: Open the newly created folder
 					const uri = vscode.Uri.file(targetDir);
 					vscode.commands.executeCommand('vscode.openFolder', uri);
@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	// Command: Add Template Items
-	const addTemplateItemsCommand = vscode.commands.registerCommand('python-project-template.addTemplateItems', async () => {
+	const addTemplateItemsCommand = vscode.commands.registerCommand('project-template-manager.addTemplateItems', async () => {
 		const workspaceFolders = vscode.workspace.workspaceFolders;
 		if (!workspaceFolders || workspaceFolders.length === 0) {
 			vscode.window.showErrorMessage('Cannot add template items: Please open a workspace folder first.');
@@ -173,10 +173,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(createFullProjectCommand, addTemplateItemsCommand);
 
-	console.log('Extension "python-project-template" is now active!');
+	console.log('Extension "project-template-manager" is now active!');
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {
-	console.log('Extension "python-project-template" is now deactivated.');
+	console.log('Extension "project-template-manager" is now deactivated.');
 }
