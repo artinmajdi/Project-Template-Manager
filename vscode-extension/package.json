@@ -2,7 +2,7 @@
   "name": "project-template-manager",
   "displayName": "Project Template Manager",
   "description": "Project Template Manager is a VS Code extension that allows developers to save entire project structures as reusable templates, create new projects from these templates, or selectively integrate specific files and folders into existing projects. It streamlines project setup, promotes consistent organization, and helps teams maintain standardized practices across projects.",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",
   "publisher": "artinmajdi",
   "engines": {
@@ -29,7 +29,7 @@
       "project-template-explorer": [
         {
           "id": "projectTemplateExplorer",
-          "name": "Templates"
+          "name": "PROJECT TEMPLATES"
         }
       ]
     },
@@ -41,6 +41,10 @@
       {
         "command": "project-template-manager.addTemplateItems",
         "title": "Add Files/Folders from Template"
+      },
+      {
+        "command": "project-template-manager.copyTemplateItem",
+        "title": "Copy to Workspace"
       },
       {
         "command": "project-template-manager.refreshTemplates",
@@ -85,6 +89,11 @@
         {
           "command": "project-template-manager.deleteTemplate",
           "when": "view == projectTemplateExplorer && viewItem == template",
+          "group": "inline"
+        },
+        {
+          "command": "project-template-manager.copyTemplateItem",
+          "when": "view == projectTemplateExplorer && (viewItem == templateFile || viewItem == templateFolder)",
           "group": "inline"
         }
       ]

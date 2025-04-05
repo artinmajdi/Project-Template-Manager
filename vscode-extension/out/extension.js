@@ -69,6 +69,50 @@ function copyFile(source, targetDir, fileName) {
     }
     fs.copyFileSync(source, targetPath);
 }
+// Helper function to clean up templates, keeping only pythonic_template
+function cleanupTemplates(templatesDir) {
+    if (!fs.existsSync(templatesDir)) {
+        return;
+    }
+    const templates = fs.readdirSync(templatesDir, { withFileTypes: true });
+    for (const template of templates) {
+        if (template.isDirectory() && template.name !== 'pythonic_template') {
+            const templatePath = path.join(templatesDir, template.name);
+            try {
+                fs.rmSync(templatePath, { recursive: true, force: true });
+            }
+            catch (error) {
+                console.error(`Failed to remove template ${template.name}:`, error);
+            }
+        }
+    }
+}
+// Helper function to create a basic template structure
+function createBasicTemplateStructure(templatesDir, templateName, structure) {
+    const templateDir = path.join(templatesDir, templateName);
+    if (!fs.existsSync(templateDir)) {
+        fs.mkdirSync(templateDir, { recursive: true });
+        // Create all directories and files in the structure
+        createStructureRecursive(templateDir, structure);
+    }
+}
+// Recursive helper to create template structure
+function createStructureRecursive(baseDir, structure) {
+    for (const [name, content] of Object.entries(structure)) {
+        const itemPath = path.join(baseDir, name);
+        // If it's a string, it's a file with content
+        if (typeof content === 'string') {
+            fs.writeFileSync(itemPath, content);
+        }
+        // Otherwise it's a directory with more structure
+        else {
+            if (!fs.existsSync(itemPath)) {
+                fs.mkdirSync(itemPath, { recursive: true });
+            }
+            createStructureRecursive(itemPath, content);
+        }
+    }
+}
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 function activate(context) {
@@ -82,8 +126,15 @@ function activate(context) {
     const templateExplorerProvider = new templateExplorer_1.TemplateExplorerProvider(workspaceRoot, context);
     // Register the TreeDataProvider for the sidebar view
     vscode.window.registerTreeDataProvider('projectTemplateExplorer', templateExplorerProvider);
-    // Install default template if available
-    const defaultTemplatePath = path.join(context.extensionPath, 'template_example');
+    // Ensure templates directory exists
+    const templatesDir = path.join(context.globalStorageUri.fsPath, 'templates');
+    if (!fs.existsSync(templatesDir)) {
+        fs.mkdirSync(templatesDir, { recursive: true });
+    }
+    // Clean up any existing templates except pythonic_template
+    cleanupTemplates(templatesDir);
+    // Install default template example if available
+    const defaultTemplatePath = path.join(context.extensionPath, 'pythonic_template');
     if (fs.existsSync(defaultTemplatePath)) {
         templateManager.installDefaultTemplate(defaultTemplatePath).then(() => {
             templateExplorerProvider.refresh();
@@ -276,6 +327,52 @@ function activate(context) {
             vscode.window.showErrorMessage(`Error accessing template items: ${error.message}`);
         }
     });
+    // Command: Copy Template File/Folder to Workspace
+    const copyTemplateItemCommand = vscode.commands.registerCommand('project-template-manager.copyTemplateItem', async (node) => {
+        if (!node || (node.contextValue !== 'templateFile' && node.contextValue !== 'templateFolder')) {
+            vscode.window.showErrorMessage('Please select a file or folder to copy.');
+            return;
+        }
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            vscode.window.showErrorMessage('Cannot copy item: Please open a workspace folder first.');
+            return;
+        }
+        // For simplicity, using the first workspace folder if multiple exist
+        const targetWorkspaceDir = workspaceFolders[0].uri.fsPath;
+        const itemName = node.label;
+        const itemPath = node.templatePath;
+        const isFile = node.contextValue === 'templateFile';
+        try {
+            const targetPath = path.join(targetWorkspaceDir, itemName);
+            if (fs.existsSync(targetPath)) {
+                const overwrite = await vscode.window.showWarningMessage(`"${itemName}" already exists in your workspace. Overwrite?`, { modal: true }, 'Overwrite');
+                if (overwrite !== 'Overwrite') {
+                    vscode.window.showInformationMessage(`Skipped copying "${itemName}".`);
+                    return;
+                }
+            }
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: `Copying ${isFile ? 'file' : 'folder'} "${itemName}"...`,
+                cancellable: false
+            }, async (progress) => {
+                progress.report({ increment: 0 });
+                if (isFile) {
+                    copyFile(itemPath, targetWorkspaceDir, itemName);
+                }
+                else {
+                    await copyFolderRecursive(itemPath, targetPath);
+                }
+                progress.report({ increment: 100 });
+                vscode.window.showInformationMessage(`${isFile ? 'File' : 'Folder'} "${itemName}" copied to workspace.`);
+            });
+        }
+        catch (error) {
+            console.error(`Error copying ${itemName}:`, error);
+            vscode.window.showErrorMessage(`Failed to copy ${itemName}: ${error.message}`);
+        }
+    });
     // Command: Refresh Templates
     const refreshTemplatesCommand = vscode.commands.registerCommand('project-template-manager.refreshTemplates', () => {
         templateExplorerProvider.refresh();
@@ -348,7 +445,7 @@ function activate(context) {
             }
         }
     });
-    context.subscriptions.push(createFullProjectCommand, addTemplateItemsCommand, refreshTemplatesCommand, addTemplateCommand, deleteTemplateCommand);
+    context.subscriptions.push(createFullProjectCommand, addTemplateItemsCommand, copyTemplateItemCommand, refreshTemplatesCommand, addTemplateCommand, deleteTemplateCommand);
     console.log('Extension "project-template-manager" is now active!');
 }
 // This method is called when your extension is deactivated

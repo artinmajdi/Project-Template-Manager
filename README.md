@@ -61,10 +61,10 @@ cursor --install-extension project-template-manager-0.0.1.vsix
 
 ### Adding the Template Example to Your Extension
 
-The Project Template Manager uses the extension directory as the source for templates. To use the provided `template_example` as your template:
+The Project Template Manager uses the extension directory as the source for templates. To use the provided `pythonic_template` as your template:
 
 1. **Option 1: Copy to Extension Directory**
-   - Copy the contents of the `template_example` directory to the extension's installation directory
+   - Copy the contents of the `pythonic_template` directory to the extension's installation directory
    - This allows the template example to be used immediately
 
    > **Note**: Finding the extension directory varies by platform:
@@ -79,10 +79,10 @@ The Project Template Manager uses the extension directory as the source for temp
 
    ```bash
    # On macOS/Linux
-   ln -s /path/to/template_example/* ~/.vscode/extensions/artinmajdi.project-template-manager-0.0.1/template
+   ln -s /path/to/pythonic_template/* ~/.vscode/extensions/artinmajdi.project-template-manager-0.0.1/template
 
    # On Windows (Command Prompt as Administrator)
-   mklink /D "%USERPROFILE%\.vscode\extensions\artinmajdi.project-template-manager-0.0.1\template" "path\to\template_example"
+   mklink /D "%USERPROFILE%\.vscode\extensions\artinmajdi.project-template-manager-0.0.1\template" "path\to\pythonic_template"
    ```
 
 ### Using the Extension

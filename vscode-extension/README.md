@@ -67,7 +67,7 @@ The Template Explorer sidebar provides:
 
 ## Included Template
 
-The extension comes with a default "template_example" that demonstrates a well-structured Python project with:
+The extension comes with a default "pythonic_template" that demonstrates a well-structured Python project with:
 
 - Standardized project layout
 - Configuration management

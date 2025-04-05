@@ -17,11 +17,14 @@ export class TemplateTreeItem extends vscode.TreeItem {
         // Set icon based on item type
         if (isFile) {
             this.iconPath = new vscode.ThemeIcon('file');
+            this.contextValue = 'templateFile';
         } else if (isRoot) {
             this.iconPath = new vscode.ThemeIcon('folder-opened');
-            this.description = 'Current Project';
         } else {
             this.iconPath = new vscode.ThemeIcon('folder');
+            if (!isRoot && contextValue !== 'category') {
+                this.contextValue = 'templateFolder';
+            }
         }
     }
 }
@@ -45,28 +48,6 @@ export class TemplateExplorerProvider implements vscode.TreeDataProvider<Templat
         if (!element) {
             const items: TemplateTreeItem[] = [];
 
-            // Add current workspace folder if available
-            if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-                const currentFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
-                items.push(new TemplateTreeItem(
-                    path.basename(currentFolder),
-                    vscode.TreeItemCollapsibleState.Expanded,
-                    currentFolder,
-                    false,
-                    true
-                ));
-            }
-
-            // Add a separator
-            items.push(new TemplateTreeItem(
-                'Available Templates',
-                vscode.TreeItemCollapsibleState.None,
-                '',
-                false,
-                false,
-                'category'
-            ));
-
             // Get all templates
             const templatesDir = this.getTemplatesDir();
             if (fs.existsSync(templatesDir)) {
@@ -87,7 +68,7 @@ export class TemplateExplorerProvider implements vscode.TreeDataProvider<Templat
             return items;
         }
 
-        // If the element is the workspace root or a template, show its children
+        // If the element is a template or folder, show its children
         if (fs.existsSync(element.templatePath)) {
             return fs.readdirSync(element.templatePath, { withFileTypes: true })
                 .map(entry => {
@@ -100,7 +81,7 @@ export class TemplateExplorerProvider implements vscode.TreeDataProvider<Templat
                         itemPath,
                         isFile,
                         false,
-                        isFile ? 'file' : 'folder'
+                        isFile ? 'templateFile' : 'templateFolder'
                     );
                 });
         }
@@ -131,8 +112,8 @@ export class TemplateManager {
 
     // Install default template example
     async installDefaultTemplate(defaultTemplateDir: string): Promise<void> {
-        // Create the template_example directory in the templates directory
-        const targetDir = path.join(this.templatesDir, 'template_example');
+        // Create the pythonic_template directory in the templates directory
+        const targetDir = path.join(this.templatesDir, 'pythonic_template');
 
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });

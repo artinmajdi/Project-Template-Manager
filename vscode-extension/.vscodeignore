@@ -12,4 +12,4 @@ vsc-extension-quickstart.md
 
 # Explicitly include these directories
 !resources/**
-!template_example/**
+!pythonic_template/**
