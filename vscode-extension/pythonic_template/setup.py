@@ -24,10 +24,10 @@ with codecs.open(os.path.join(here, "requirements.txt"), encoding="utf-8") as fh
 # Package metadata
 PACKAGE_NAME = "project_template"
 VERSION = "1.0.0"
-AUTHOR = "Artin Majdi"
-AUTHOR_EMAIL = "msm2024@gmail.com"
+AUTHOR = "Your Name"
+AUTHOR_EMAIL = "your.email@example.com"
 DESCRIPTION = "A template for data science and ML projects"
-URL = "https://github.com/artinmajdi/template_python_project"
+URL = "https://github.com/username/project_template"
 LICENSE = "MIT"
 
 # Classifiers for PyPI

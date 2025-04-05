@@ -8,8 +8,8 @@ This file marks the root directory as a Python package and provides metadata.
 """
 
 __version__ = "0.1.0"
-__author__ = "Artin Majidi"
-__email__ = "msm2024@gmail.com"
+__author__ = "Your Name"
+__email__ = "your.email@example.com"
 __license__ = "CC BY-NC 4.0"
 __project__ = "Python Project Template"
 __description__ = "A comprehensive template for Python projects"
