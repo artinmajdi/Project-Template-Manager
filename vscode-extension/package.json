@@ -2,7 +2,7 @@
   "name": "project-template-manager",
   "displayName": "Project Template Manager",
   "description": "Project Template Manager is a VS Code extension that allows developers to save entire project structures as reusable templates, create new projects from these templates, or selectively integrate specific files and folders into existing projects. It streamlines project setup, promotes consistent organization, and helps teams maintain standardized practices across projects.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",
   "publisher": "artinmajdi",
   "engines": {

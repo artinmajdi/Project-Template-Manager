@@ -312,12 +312,31 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
             ;;
     esac
 
+    # Get PAT from .env file if it exists, and no token was passed as argument
+    if [ -z "$PAT_ARG" ]; then
+        ENV_FILE="$(dirname "$0")/.env"
+        if [ -f "$ENV_FILE" ]; then
+            echo -e "${BLUE}Reading token from .env file...${NC}"
+            # Source the .env file to load VSCE_PAT
+            source "$ENV_FILE"
+            if [ ! -z "$VSCE_PAT" ] && [ "$VSCE_PAT" != "your_personal_access_token_here" ]; then
+                PAT_ARG="$VSCE_PAT"
+                echo -e "${GREEN}Token found in .env file.${NC}"
+            else
+                echo -e "${YELLOW}No valid token found in .env file.${NC}"
+            fi
+        else
+            echo -e "${YELLOW}No .env file found at $ENV_FILE${NC}"
+        fi
+    fi
+
     # Ask for personal access token if needed
     TOKEN_CHOICE=""
     if [ -n "$PAT_ARG" ]; then
-        # Use provided token from command line
+        # Use provided token from command line or .env
         PAT="$PAT_ARG"
         TOKEN_CHOICE="1"
+        echo -e "${BLUE}Using Personal Access Token...${NC}"
     else
         echo -e "${BLUE}Do you have a Personal Access Token (PAT) for publishing?${NC}"
         echo "1) Yes, I have a PAT"
@@ -414,6 +433,9 @@ if [ $# -eq 0 ]; then
     echo -e "  --token=<pat>    : Personal Access Token for publishing"
     echo -e "\nBackward compatibility: You can also use positional arguments:"
     echo -e "  ./install.sh <ide> <action> [version] [pat]"
+    echo -e "\nNotes:"
+    echo -e "  - You can store your Personal Access Token in a .env file in the root directory"
+    echo -e "    with the format: VSCE_PAT=\"your_token_here\""
     echo -e "\nExamples:"
     echo -e "  ./install.sh --ide=cursor --action=local"
     echo -e "  ./install.sh --action=publish --version=patch --token=your_token"
