@@ -15,13 +15,14 @@
     "onView:projectTemplateExplorer"
   ],
   "main": "./out/extension.js",
+  "icon": "resources/icon.png",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
           "id": "project-template-explorer",
           "title": "Project Templates",
-          "icon": "resources/template-icon.svg"
+          "icon": "resources/template-icon-alt.svg"
         }
       ]
     },
