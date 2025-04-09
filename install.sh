@@ -8,13 +8,27 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Project Template Manager - Build and Install Script${NC}\n"
+# Function to display messages with color
+log_info() { echo -e "${BLUE}$1${NC}"; }
+log_success() { echo -e "${GREEN}$1${NC}"; }
+log_warning() { echo -e "${YELLOW}$1${NC}"; }
+log_error() { echo -e "${RED}$1${NC}" >&2; }
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+log_info "Project Template Manager - Build and Install Script\n"
 
 # Process command line arguments
 IDE_ARG=""
 PUBLISH_ARG=""
 VERSION_ARG=""
 PAT_ARG=""
+OVSX_ARG=""
+OVSX_PAT_ARG=""
+
 
 # Parse command line arguments in any order
 for arg in "$@"; do
@@ -31,6 +45,12 @@ for arg in "$@"; do
         --token=*)
             PAT_ARG="${arg#*=}"
             ;;
+        --ovsx=*)
+            OVSX_ARG="${arg#*=}"
+            ;;
+        --ovsx-token=*)
+            OVSX_PAT_ARG="${arg#*=}"
+            ;;
         *)
             # For backward compatibility, try to guess based on position
             if [ -z "$IDE_ARG" ] && [[ "$arg" =~ ^(code|code-insiders|windsurf|windsurf-next|cursor|skip)$ ]]; then
@@ -42,6 +62,8 @@ for arg in "$@"; do
             elif [ -z "$PAT_ARG" ] && [ ${#arg} -gt 10 ]; then
                 # Assuming PAT is longer than 10 chars
                 PAT_ARG="$arg"
+            elif [ -z "$OVSX_ARG" ] && [[ "$arg" =~ ^(yes|no)$ ]]; then
+                OVSX_ARG="$arg"
             else
                 echo -e "${YELLOW}Warning: Unrecognized argument '$arg'${NC}"
             fi
@@ -49,41 +71,49 @@ for arg in "$@"; do
     esac
 done
 
+# Store the project root directory
+PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
+
 # Navigate to the vscode-extension directory
-cd "$(dirname "$0")/vscode-extension"
+cd "$PROJECT_ROOT/vscode-extension"
 
 # Check if license file exists in the correct location
 if [ ! -f "LICENSE" ]; then
-    echo -e "${RED}Error: License file not found at vscode-extension/LICENSE${NC}"
-    echo -e "${YELLOW}Please make sure the license file is in the correct location before continuing.${NC}"
+    log_error "Error: License file not found at vscode-extension/LICENSE"
+    log_warning "Please make sure the license file is in the correct location before continuing."
     exit 1
 fi
 
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-    echo -e "${RED}Error: Node.js is not installed. Please install Node.js before continuing.${NC}"
-    exit 1
-fi
+# Check for required dependencies
+for cmd in node npm; do
+    if ! command_exists "$cmd"; then
+        log_error "Error: $cmd is not installed. Please install $cmd before continuing."
+        exit 1
+    fi
+done
 
-# Check if npm is installed
-if ! command -v npm &> /dev/null; then
-    echo -e "${RED}Error: npm is not installed. Please install npm before continuing.${NC}"
-    exit 1
-fi
+# Install required CLI tools if needed
+for tool in {"vsce":"@vscode/vsce","ovsx":"ovsx"}; do
+    name=${tool%:*}
+    package=${tool#*:}
+    if ! command_exists "$name"; then
+        log_warning "$name not found. Installing..."
+        npm install -g "$package"
+        if ! command_exists "$name"; then
+            log_error "Failed to install $name. Please install it manually: npm install -g $package"
+            exit 1
+        else
+            log_success "$name installed successfully."
+        fi
+    fi
+done
 
-# Check if vsce is installed, if not, install it
-if ! command -v vsce &> /dev/null; then
-    echo -e "${YELLOW}vsce not found. Installing...${NC}"
-    npm install -g @vscode/vsce
-fi
-
-# Install dependencies
-echo -e "${BLUE}Installing dependencies...${NC}"
+# Install dependencies and compile TypeScript
+log_info "Installing dependencies..."
 npm install
 
-# Compile TypeScript
-echo -e "${BLUE}Compiling TypeScript...${NC}"
-npm run compile
+log_info "Compiling TypeScript..."
+npm run compile || { log_error "TypeScript compilation failed."; exit 1; }
 
 # Determine whether to package or publish
 PUBLISH_CHOICE=""
@@ -97,10 +127,10 @@ if [ -n "$PUBLISH_ARG" ]; then
         exit 1
     fi
 else
-    # Ask whether to package and install locally, or publish to marketplace
+    # Ask whether to package and install locally, or publish to marketplaces
     echo -e "${BLUE}What would you like to do?${NC}"
     echo "1) Package and install locally"
-    echo "2) Publish to VS Code Marketplace"
+    echo "2) Publish to VS Code and Open VSX Marketplaces"
 
     read -p "Enter your choice (1-2): " PUBLISH_CHOICE
 fi
@@ -312,22 +342,45 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
             ;;
     esac
 
-    # Get PAT from .env file if it exists, and no token was passed as argument
-    if [ -z "$PAT_ARG" ]; then
-        ENV_FILE="$(dirname "$0")/.env"
-        if [ -f "$ENV_FILE" ]; then
-            echo -e "${BLUE}Reading token from .env file...${NC}"
-            # Source the .env file to load VSCE_PAT
-            source "$ENV_FILE"
-            if [ ! -z "$VSCE_PAT" ] && [ "$VSCE_PAT" != "your_personal_access_token_here" ]; then
+    # Function to load tokens from .env file
+    load_tokens_from_env() {
+        # Use the PROJECT_ROOT variable to locate the .env file
+        local env_file="$PROJECT_ROOT/.env"
+        
+        if [ -f "$env_file" ]; then
+            log_info "Reading tokens from .env file..."
+            # Source the .env file to load tokens
+            source "$env_file"
+
+            # Check for VS Code Marketplace token
+            if [ -z "$PAT_ARG" ] && [ ! -z "$VSCE_PAT" ] && [ "$VSCE_PAT" != "your_personal_access_token_here" ]; then
                 PAT_ARG="$VSCE_PAT"
-                echo -e "${GREEN}Token found in .env file.${NC}"
-            else
-                echo -e "${YELLOW}No valid token found in .env file.${NC}"
+                log_success "VS Code Marketplace token found in .env file."
+            elif [ -z "$PAT_ARG" ]; then
+                log_warning "No valid VS Code Marketplace token found in .env file."
             fi
+
+            # Check for Open VSX Registry token
+            if [ -z "$OVSX_PAT_ARG" ] && [ ! -z "$OVSX_PAT" ] && [ "$OVSX_PAT" != "your_open_vsx_token_here" ]; then
+                OVSX_PAT_ARG="$OVSX_PAT"
+                log_success "Open VSX Registry token found in .env file."
+            elif [ -z "$OVSX_PAT_ARG" ]; then
+                log_warning "No valid Open VSX Registry token found in .env file."
+            fi
+            
+            return 0
         else
-            echo -e "${YELLOW}No .env file found at $ENV_FILE${NC}"
+            log_warning "No .env file found at $env_file"
+            return 1
         fi
+    }
+    
+    # Load tokens from .env file
+    load_tokens_from_env
+    
+    # If no tokens were found and .env doesn't exist, create a sample one
+    if [ -z "$PAT_ARG" ] && [ -z "$OVSX_PAT_ARG" ] && [ ! -f "$PROJECT_ROOT/.env" ]; then
+        create_sample_env_file "$PROJECT_ROOT/.env"
     fi
 
     # Ask for personal access token if needed
@@ -415,6 +468,102 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
     echo -e "${BLUE}It may take a few minutes to appear in search results.${NC}"
     echo -e "${BLUE}You can view your extensions at: ${NC}${YELLOW}https://marketplace.visualstudio.com/manage/publishers/${PUBLISHER}${NC}"
 
+    # Automatically publish to Open VSX Registry (unless explicitly disabled)
+    OVSX_CHOICE="1" # Default to yes
+    if [ -n "$OVSX_ARG" ] && [ "$OVSX_ARG" == "no" ]; then
+        OVSX_CHOICE="2" # Only skip if explicitly set to no
+        echo -e "${YELLOW}Skipping Open VSX Registry publication as requested.${NC}"
+    fi
+
+    if [ "$OVSX_CHOICE" == "1" ]; then
+        echo -e "${BLUE}Publishing to Open VSX Registry...${NC}"
+        # Function to ensure we have a VSIX file
+        ensure_vsix_file() {
+            # Find the latest vsix file in a cross-platform way
+            local vsix_file=""
+            
+            # Check if we're on macOS or Linux
+            if [[ "$(uname)" == "Darwin" ]]; then
+                # macOS version
+                vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f -exec stat -f "%m %N" {} \; | sort -nr | head -n1 | cut -d' ' -f2-)
+            else
+                # Linux version (with -printf)
+                vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f -printf "%T@ %p\n" 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
+                
+                # If the above fails, try a more compatible approach
+                if [ -z "$vsix_file" ]; then
+                    vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f | xargs ls -t 2>/dev/null | head -n1)
+                fi
+            fi
+            
+            if [ -z "$vsix_file" ]; then
+                log_warning "No .vsix file found. Packaging extension..."
+                if vsce package; then
+                    # Try to find the file again after packaging
+                    if [[ "$(uname)" == "Darwin" ]]; then
+                        vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f -exec stat -f "%m %N" {} \; | sort -nr | head -n1 | cut -d' ' -f2-)
+                    else
+                        vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f -printf "%T@ %p\n" 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
+                        if [ -z "$vsix_file" ]; then
+                            vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f | xargs ls -t 2>/dev/null | head -n1)
+                        fi
+                    fi
+                    
+                    if [ -z "$vsix_file" ]; then
+                        log_error "Error: Failed to create VSIX file. Check for errors above."
+                        return 1
+                    fi
+                else
+                    log_error "Error: Failed to package extension. Check for errors above."
+                    return 1
+                fi
+            fi
+            
+            # Return the VSIX file path
+            echo "${vsix_file#./}"
+            return 0
+        }
+        
+        # Get the VSIX file
+        VSIX_FILE=$(ensure_vsix_file)
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
+
+        # Function to publish to Open VSX Registry
+        publish_to_ovsx() {
+            local vsix_file="$1"
+            local token="$2"
+            
+            # Check if we have a token
+            if [ -z "$token" ]; then
+                log_error "Error: No Open VSX Registry token provided."
+                log_warning "Please provide a token using --ovsx-token or add OVSX_PAT to your .env file."
+                
+                # Create sample .env file if it doesn't exist
+                create_sample_env_file "$PROJECT_ROOT/.env"
+                
+                return 1
+            fi
+
+            # Publish to Open VSX Registry
+            log_info "Publishing to Open VSX Registry..."
+            if ovsx publish "$vsix_file" -p "$token"; then
+                log_success "Successfully published to Open VSX Registry!"
+                log_info "Your extension should now be available on both marketplaces!"
+                return 0
+            else
+                log_error "Failed to publish to Open VSX Registry. Check the error message above."
+                return 1
+            fi
+        }
+        
+        # Publish to Open VSX Registry
+        publish_to_ovsx "$VSIX_FILE" "$OVSX_PAT_ARG" || exit 1
+    else
+        echo -e "${YELLOW}Skipping publication to Open VSX Registry.${NC}"
+    fi
+
 else
     echo -e "${RED}Invalid choice. Exiting.${NC}"
     exit 1
@@ -422,22 +571,51 @@ fi
 
 echo -e "\n${GREEN}Process completed!${NC}"
 
+# Function to create a sample .env file if it doesn't exist
+create_sample_env_file() {
+    local env_file="$1"
+    if [ ! -f "$env_file" ]; then
+        log_warning "Creating sample .env file at $env_file"
+        cat > "$env_file" << EOL
+# VS Code Marketplace Personal Access Token
+VSCE_PAT="your_vscode_token_here"
+
+# Open VSX Registry Personal Access Token
+OVSX_PAT="your_ovsx_token_here"
+EOL
+        log_info "Sample .env file created. Please edit it with your actual tokens."
+    fi
+}
+
+# Function to display usage information
+show_usage() {
+    log_info "\nCommand line usage:"
+    echo "./install.sh [options]"
+    
+    log_info "\nOptions (can be provided in any order):"
+    echo "  --ide=<ide>       : code, code-insiders, windsurf, windsurf-next, cursor, skip"
+    echo "  --action=<action> : local, publish"
+    echo "  --version=<ver>   : patch, minor, major, none (for publish only)"
+    echo "  --token=<pat>     : Personal Access Token for VS Code Marketplace"
+    echo "  --ovsx=<option>   : yes, no (default: yes for publish action)"
+    echo "  --ovsx-token=<pat>: Personal Access Token for Open VSX Registry"
+    
+    log_info "\nBackward compatibility: You can also use positional arguments:"
+    echo "  ./install.sh <ide> <action> [version] [pat]"
+    
+    log_info "\nNotes:"
+    echo "  - You can store your Personal Access Tokens in a .env file in the root directory"
+    echo "    with the format:"
+    echo "    VSCE_PAT=\"your_vscode_token_here\""
+    echo "    OVSX_PAT=\"your_ovsx_token_here\""
+    
+    log_info "\nExamples:"
+    echo "  ./install.sh --ide=cursor --action=local"
+    echo "  ./install.sh --action=publish --version=patch --token=your_vscode_token --ovsx-token=your_ovsx_token"
+    echo "  ./install.sh cursor local"
+}
+
 # Print usage info if no arguments provided
 if [ $# -eq 0 ]; then
-    echo -e "\n${BLUE}Command line usage:${NC}"
-    echo -e "./install.sh [options]"
-    echo -e "\nOptions (can be provided in any order):"
-    echo -e "  --ide=<ide>      : code, code-insiders, windsurf, windsurf-next, cursor, skip"
-    echo -e "  --action=<action>: local, publish"
-    echo -e "  --version=<ver>  : patch, minor, major, none (for publish only)"
-    echo -e "  --token=<pat>    : Personal Access Token for publishing"
-    echo -e "\nBackward compatibility: You can also use positional arguments:"
-    echo -e "  ./install.sh <ide> <action> [version] [pat]"
-    echo -e "\nNotes:"
-    echo -e "  - You can store your Personal Access Token in a .env file in the root directory"
-    echo -e "    with the format: VSCE_PAT=\"your_token_here\""
-    echo -e "\nExamples:"
-    echo -e "  ./install.sh --ide=cursor --action=local"
-    echo -e "  ./install.sh --action=publish --version=patch --token=your_token"
-    echo -e "  ./install.sh cursor local"
+    show_usage
 fi
