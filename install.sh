@@ -346,7 +346,7 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
     load_tokens_from_env() {
         # Use the PROJECT_ROOT variable to locate the .env file
         local env_file="$PROJECT_ROOT/.env"
-        
+
         if [ -f "$env_file" ]; then
             log_info "Reading tokens from .env file..."
             # Source the .env file to load tokens
@@ -367,17 +367,17 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
             elif [ -z "$OVSX_PAT_ARG" ]; then
                 log_warning "No valid Open VSX Registry token found in .env file."
             fi
-            
+
             return 0
         else
             log_warning "No .env file found at $env_file"
             return 1
         fi
     }
-    
+
     # Load tokens from .env file
     load_tokens_from_env
-    
+
     # If no tokens were found and .env doesn't exist, create a sample one
     if [ -z "$PAT_ARG" ] && [ -z "$OVSX_PAT_ARG" ] && [ ! -f "$PROJECT_ROOT/.env" ]; then
         create_sample_env_file "$PROJECT_ROOT/.env"
@@ -481,7 +481,7 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
         ensure_vsix_file() {
             # Find the latest vsix file in a cross-platform way
             local vsix_file=""
-            
+
             # Check if we're on macOS or Linux
             if [[ "$(uname)" == "Darwin" ]]; then
                 # macOS version
@@ -489,13 +489,13 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
             else
                 # Linux version (with -printf)
                 vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f -printf "%T@ %p\n" 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2-)
-                
+
                 # If the above fails, try a more compatible approach
                 if [ -z "$vsix_file" ]; then
                     vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f | xargs ls -t 2>/dev/null | head -n1)
                 fi
             fi
-            
+
             if [ -z "$vsix_file" ]; then
                 log_warning "No .vsix file found. Packaging extension..."
                 if vsce package; then
@@ -508,7 +508,7 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
                             vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f | xargs ls -t 2>/dev/null | head -n1)
                         fi
                     fi
-                    
+
                     if [ -z "$vsix_file" ]; then
                         log_error "Error: Failed to create VSIX file. Check for errors above."
                         return 1
@@ -518,12 +518,12 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
                     return 1
                 fi
             fi
-            
+
             # Return the VSIX file path
             echo "${vsix_file#./}"
             return 0
         }
-        
+
         # Get the VSIX file
         VSIX_FILE=$(ensure_vsix_file)
         if [ $? -ne 0 ]; then
@@ -534,15 +534,15 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
         publish_to_ovsx() {
             local vsix_file="$1"
             local token="$2"
-            
+
             # Check if we have a token
             if [ -z "$token" ]; then
                 log_error "Error: No Open VSX Registry token provided."
                 log_warning "Please provide a token using --ovsx-token or add OVSX_PAT to your .env file."
-                
+
                 # Create sample .env file if it doesn't exist
                 create_sample_env_file "$PROJECT_ROOT/.env"
-                
+
                 return 1
             fi
 
@@ -557,7 +557,7 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
                 return 1
             fi
         }
-        
+
         # Publish to Open VSX Registry
         publish_to_ovsx "$VSIX_FILE" "$OVSX_PAT_ARG" || exit 1
     else
@@ -591,7 +591,7 @@ EOL
 show_usage() {
     log_info "\nCommand line usage:"
     echo "./install.sh [options]"
-    
+
     log_info "\nOptions (can be provided in any order):"
     echo "  --ide=<ide>       : code, code-insiders, windsurf, windsurf-next, cursor, skip"
     echo "  --action=<action> : local, publish"
@@ -599,16 +599,16 @@ show_usage() {
     echo "  --token=<pat>     : Personal Access Token for VS Code Marketplace"
     echo "  --ovsx=<option>   : yes, no (default: yes for publish action)"
     echo "  --ovsx-token=<pat>: Personal Access Token for Open VSX Registry"
-    
+
     log_info "\nBackward compatibility: You can also use positional arguments:"
     echo "  ./install.sh <ide> <action> [version] [pat]"
-    
+
     log_info "\nNotes:"
     echo "  - You can store your Personal Access Tokens in a .env file in the root directory"
     echo "    with the format:"
     echo "    VSCE_PAT=\"your_vscode_token_here\""
     echo "    OVSX_PAT=\"your_ovsx_token_here\""
-    
+
     log_info "\nExamples:"
     echo "  ./install.sh --ide=cursor --action=local"
     echo "  ./install.sh --action=publish --version=patch --token=your_vscode_token --ovsx-token=your_ovsx_token"
