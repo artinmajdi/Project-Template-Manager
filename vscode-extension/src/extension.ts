@@ -37,23 +37,10 @@ function copyFile(source: string, targetDir: string, fileName: string): void {
 	fs.copyFileSync(source, targetPath);
 }
 
-// Helper function to clean up templates, keeping only pythonic_template
-function cleanupTemplates(templatesDir: string): void {
+// Helper function to ensure templates directory exists
+function ensureTemplatesDir(templatesDir: string): void {
 	if (!fs.existsSync(templatesDir)) {
-		return;
-	}
-
-	const templates = fs.readdirSync(templatesDir, { withFileTypes: true });
-
-	for (const template of templates) {
-		if (template.isDirectory() && template.name !== 'pythonic_template') {
-			const templatePath = path.join(templatesDir, template.name);
-			try {
-				fs.rmSync(templatePath, { recursive: true, force: true });
-			} catch (error) {
-				console.error(`Failed to remove template ${template.name}:`, error);
-			}
-		}
+		fs.mkdirSync(templatesDir, { recursive: true });
 	}
 }
 
@@ -106,19 +93,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Ensure templates directory exists
 	const templatesDir = path.join(context.globalStorageUri.fsPath, 'templates');
-	if (!fs.existsSync(templatesDir)) {
-		fs.mkdirSync(templatesDir, { recursive: true });
-	}
+	ensureTemplatesDir(templatesDir);
 
-	// Clean up any existing templates except pythonic_template
-	cleanupTemplates(templatesDir);
-
-	// Install default template example if available
-	const defaultTemplatePath = path.join(context.extensionPath, 'pythonic_template');
-	if (fs.existsSync(defaultTemplatePath)) {
-		templateManager.installDefaultTemplate(defaultTemplatePath).then(() => {
-			templateExplorerProvider.refresh();
-		});
+	// Install all available templates from the extension's templates directory
+	const extensionTemplatesDir = path.join(context.extensionPath, 'templates');
+	if (fs.existsSync(extensionTemplatesDir)) {
+		const templates = fs.readdirSync(extensionTemplatesDir, { withFileTypes: true });
+		for (const template of templates) {
+			if (template.isDirectory()) {
+				const templatePath = path.join(extensionTemplatesDir, template.name);
+				templateManager.installTemplate(templatePath, template.name).then(() => {
+					templateExplorerProvider.refresh();
+				});
+			}
+		}
 	}
 
 	const excludeItems = ['.git', '.vscode', 'node_modules', 'out', '.DS_Store', '.vscodeignore', '.gitignore', 'package.json', 'package-lock.json', 'tsconfig.json', 'eslint.config.mjs', '.vscode-test.mjs', 'CHANGELOG.md', 'vsc-extension-quickstart.md']; // Items to exclude when copying

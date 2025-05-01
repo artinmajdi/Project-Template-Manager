@@ -130,15 +130,19 @@ class TemplateManager {
             fs.mkdirSync(this.templatesDir, { recursive: true });
         }
     }
-    // Install default template example
-    async installDefaultTemplate(defaultTemplateDir) {
-        // Create the pythonic_template directory in the templates directory
-        const targetDir = path.join(this.templatesDir, 'pythonic_template');
+    // Install a template from source directory with a specific name
+    async installTemplate(sourceTemplateDir, templateName) {
+        // Create the template directory in the templates directory
+        const targetDir = path.join(this.templatesDir, templateName);
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
-            // Copy files and directories from the defaultTemplateDir to the target directory
-            await this.copyFolderRecursive(defaultTemplateDir, targetDir);
+            // Copy files and directories from the sourceTemplateDir to the target directory
+            await this.copyFolderRecursive(sourceTemplateDir, targetDir);
         }
+    }
+    // Install default template example (for backward compatibility)
+    async installDefaultTemplate(defaultTemplateDir) {
+        return this.installTemplate(defaultTemplateDir, 'pythonic_template');
     }
     // Helper function to recursively copy a directory
     async copyFolderRecursive(source, target) {
