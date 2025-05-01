@@ -9,6 +9,7 @@ NC='\033[0m' # No Color
 # Get the root directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+PROJECT_NAME="project_src"
 
 echo -e "${BLUE}=== Project Template - Dashboard Runner ===${NC}"
 echo "This script helps you run the project dashboard."
@@ -23,8 +24,8 @@ fi
 
 # Prompt user to choose between Docker and directly running the app
 echo "Please choose how you would like to run the dashboard:"
-echo -e "${BLUE}1)${NC} Run using Docker (recommended for production use)"
-echo -e "${BLUE}2)${NC} Run directly with local environment (recommended for development)"
+echo -e "${BLUE}1)${NC} Docker (recommended for production use)"
+echo -e "${BLUE}2)${NC} Local env (recommended for development)"
 echo ""
 
 read -p "Enter your choice (1/2): " choice
@@ -53,14 +54,10 @@ case $choice in
 
         # Determine the application entry point
         APP_PATH=""
-        if [ -f "$ROOT_DIR/src/visualization/app.py" ]; then
-            APP_PATH="src/visualization/app.py"
-        elif [ -f "$ROOT_DIR/src/dashboard/app.py" ]; then
-            APP_PATH="src/dashboard/app.py"
-        elif [ -f "$ROOT_DIR/src/app.py" ]; then
-            APP_PATH="src/app.py"
-        elif [ -f "$ROOT_DIR/src/main.py" ]; then
-            APP_PATH="src/main.py"
+        if [ -f "$ROOT_DIR/$PROJECT_NAME/visualization/app.py" ]; then
+            APP_PATH="$PROJECT_NAME/visualization/app.py"
+        elif [ -f "$ROOT_DIR/$PROJECT_NAME/app.py" ]; then
+            APP_PATH="$PROJECT_NAME/app.py"
         else
             echo -e "${YELLOW}No application entry point found. Please specify the path:${NC}"
             read -p "Enter the relative path to your application file: " custom_path
@@ -72,7 +69,7 @@ case $choice in
             # Run with Streamlit if it's installed
             cd "$ROOT_DIR"
             echo -e "${GREEN}Starting Streamlit application: $APP_PATH${NC}"
-            streamlit run "$APP_PATH"
+            streamlit run "$APP_PATH" --server.runOnSave=true
         else
             # Otherwise run as a Python script
             cd "$ROOT_DIR"

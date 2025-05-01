@@ -1,0 +1,19 @@
+[distutils]
+index-servers =
+    pypi
+    testpypi
+    github
+
+[pypi]
+username = ${PYPI_USERNAME}
+password = ${PYPI_PASSWORD}
+
+[testpypi]
+repository = https://test.pypi.org/legacy/
+username = ${TESTPYPI_USERNAME}
+password = ${TESTPYPI_PASSWORD}
+
+[github]
+repository = https://github.com/${GITHUB_REPO}/packages/pypi
+username = ${GITHUB_USERNAME}
+password = ${GITHUB_TOKEN}

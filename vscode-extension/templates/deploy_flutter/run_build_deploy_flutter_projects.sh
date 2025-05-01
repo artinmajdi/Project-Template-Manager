@@ -9,7 +9,7 @@ PROJECT_NAME="Flutter App"
 
 # Project structure
 # Path to the Flutter web app directory (relative to the script location)
-RELATIVE_WEB_APP_PATH="../src/gui/web_app"
+RELATIVE_WEB_APP_PATH="../project_src/visualization/web_app"
 
 # Features to enable/disable
 ENABLE_WEB_BUILD="true"      # Set to "false" to disable web builds
@@ -373,7 +373,7 @@ case $platform_choice in
     ;;
   4)
     echo -e "${BLUE}Building for all enabled platforms...${NC}"
-    
+
     if [[ $ENABLE_WEB_BUILD == "true" ]]; then
       build_web
 

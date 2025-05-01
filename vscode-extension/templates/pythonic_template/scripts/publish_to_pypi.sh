@@ -39,27 +39,47 @@ if [[ "$PUBLISH_TARGET" == "--test" ]]; then
 elif [[ "$PUBLISH_TARGET" == "--github" ]]; then
     REPO="github"
     REPO_NAME="GitHub Packages"
-    
-    # Get GitHub repository owner, name and branch dynamically
-    GIT_REMOTE_URL=$(git config --get remote.origin.url)
-    # Extract owner/repo from SSH or HTTPS URL
-    REPO_INFO=$(echo "$GIT_REMOTE_URL" | sed -E 's/(git@github.com:|https://github.com/)(.*)(\.git)?/\2/')
-    OWNER=$(echo "$REPO_INFO" | cut -d'/' -f1)
-    REPO=$(echo "$REPO_INFO" | cut -d'/' -f2)
+    # Automatically get GitHub repo and branch information
+    GITHUB_REPO=$(git config --get remote.origin.url | sed 's/.*github.com:\(.*\).git/\1/' | sed 's/.*github.com\/\(.*\).git/\1/')
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
-    # Extract GitHub token and user from .pypirc (optional, but good practice to keep)
-    GITHUB_TOKEN=$(grep -A 2 "\[github\]" "$PROJECT_ROOT/.pypirc" | grep password | sed 's/password = //')
-    GITHUB_USER=$(grep -A 2 "\[github\]" "$PROJECT_ROOT/.pypirc" | grep username | sed 's/username = //')
     
-    # Construct the install command using dynamic values
-    INSTALL_CMD="pip install --index-url https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${OWNER}/${REPO}/raw/${BRANCH}/dist/ project_src"
-
-    # Print the command for verification (optional)
-    echo "Using install command: ${INSTALL_CMD}"
-
+    # Check for .pypirc file first
+    PYPIRC_FILE="$PROJECT_ROOT/.pypirc"
+    if [ -f "$PYPIRC_FILE" ]; then
+        echo "Found .pypirc file, checking for GitHub credentials..."
+        PYPIRC_GITHUB_USER=$(grep -A 2 "\[github\]" "$PYPIRC_FILE" | grep username | sed 's/username = //')
+        PYPIRC_GITHUB_TOKEN=$(grep -A 2 "\[github\]" "$PYPIRC_FILE" | grep password | sed 's/password = //')
+        
+        # Use credentials from .pypirc if they exist
+        if [ -n "$PYPIRC_GITHUB_USER" ]; then
+            GITHUB_USER=$PYPIRC_GITHUB_USER
+        fi
+        if [ -n "$PYPIRC_GITHUB_TOKEN" ]; then
+            GITHUB_TOKEN=$PYPIRC_GITHUB_TOKEN
+        fi
+    else
+        echo "No .pypirc file found, checking environment variables..."
+    fi
+    
+    # If not found in .pypirc, try environment variables
+    if [ -z "$GITHUB_USER" ]; then
+        GITHUB_USER=${GITHUB_USERNAME:-$GH_USERNAME}
+    fi
+    if [ -z "$GITHUB_TOKEN" ]; then
+        GITHUB_TOKEN=${GITHUB_TOKEN:-$GH_TOKEN}
+    fi
+    
+    # If still not found, prompt user
+    if [ -z "$GITHUB_USER" ]; then
+        read -p "Enter GitHub username: " GITHUB_USER
+    fi
+    if [ -z "$GITHUB_TOKEN" ]; then
+        read -sp "Enter GitHub Personal Access Token: " GITHUB_TOKEN
+        echo
+    fi
+    INSTALL_CMD="pip install --index-url https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}/raw/${BRANCH}/dist/ project_src"
     TWINE_ARGS="--repository github"
-    echo "Publishing to GitHub Packages for ${OWNER}/${REPO}"
+    echo "Publishing to GitHub Packages"
 else
     REPO="pypi"
     REPO_NAME="PyPI"
@@ -122,19 +142,6 @@ echo "Uploading to ${REPO_NAME}..."
 if [[ "$REPO" == "github" ]]; then
     echo "Publishing to GitHub Repository..."
 
-    # Extract GitHub token and username from .pypirc
-    GITHUB_TOKEN=$(grep -A 3 "\[$REPO\]" "$PROJECT_ROOT/.pypirc" | grep "password" | sed 's/password = //')
-    GITHUB_USER=$(grep -A 3 "\[$REPO\]" "$PROJECT_ROOT/.pypirc" | grep "username" | sed 's/username = //')
-
-    echo "Extracted username: $GITHUB_USER"
-    echo "Token found: $(if [[ -n "$GITHUB_TOKEN" ]]; then echo "Yes"; else echo "No"; fi)"
-
-    # Validate GitHub token
-    if [[ -z "$GITHUB_TOKEN" ]]; then
-        echo "Error: GitHub token not found in .pypirc file."
-        exit 1
-    fi
-
     # Create a packages directory if it doesn't exist
     PACKAGES_DIR="$PROJECT_ROOT/packages"
     mkdir -p "$PACKAGES_DIR"
@@ -155,7 +162,7 @@ This directory contains the built packages for the project_src Python package.
 To install directly from this repository:
 
 \`\`\`bash
-pip install git+https://github.com/artinmajdi/Wound-EHR-Analyzer-private.git
+pip install git+https://github.com/${GITHUB_REPO}.git
 \`\`\`
 
 Or download the wheel file and install it locally:
@@ -171,12 +178,12 @@ EOF
     git commit -m "Add package version $VERSION"
 
     # Push to GitHub using HTTPS with token
-    REPO_URL="https://$GITHUB_USER:$GITHUB_TOKEN@github.com/artinmajdi/Wound-EHR-Analyzer-private.git"
-    git push "$REPO_URL" HEAD:main
+    REPO_URL="https://$GITHUB_USER:$GITHUB_TOKEN@github.com/${GITHUB_REPO}.git"
+    git push "$REPO_URL" HEAD:$BRANCH
 
     echo "\nPackage published to GitHub Repository!"
     echo "You can install it with:"
-    echo "pip install git+https://github.com/artinmajdi/Wound-EHR-Analyzer-private.git"
+    echo "pip install git+https://github.com/${GITHUB_REPO}.git"
 
     # Or use PyPI for regular publishing
 else
