@@ -1,0 +1,29 @@
+# Core dependencies
+numpy
+pandas
+matplotlib
+seaborn
+streamlit
+openpyxl
+altair
+plotly
+scikit-learn
+pytest
+watchdog
+protobuf
+sacremoses
+pillow
+pydantic
+python-dotenv
+
+# Visualization and analysis
+shap
+statsmodels
+scipy
+prince
+colorcet
+networkx
+wordcloud
+
+# Testing
+pytest-mock

@@ -4,5 +4,8 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"hide-files.files": [],
+		"python.languageServer": "None"
+	}
 }

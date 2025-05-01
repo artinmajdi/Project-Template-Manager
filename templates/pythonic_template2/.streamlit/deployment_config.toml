@@ -1,0 +1,34 @@
+# Streamlit Cloud deployment configuration
+
+[deploy]
+# Specify the main app file to run
+main_script = "project_src/visualization/app.py"
+
+# Specify Python version for deployment
+python_version = "3.12"
+
+# Memory settings
+memory = "normal"
+
+# Specify if the app should be public or private
+sharing = "public"
+
+# Specify if the app should use a custom domain
+# custom_domain = "your-domain.com"
+
+[environment]
+# Environment variables for deployment
+# These will be set in the Streamlit Cloud dashboard
+# DO NOT put actual secrets here
+ENVIRONMENT = "production"
+
+[resources]
+# Resource allocation for the app
+cpu = "2x"
+memory = "2GB"
+
+[health_check]
+# Health check settings
+enabled = true
+timeout = 300  # seconds
+grace_period = 120  # seconds
