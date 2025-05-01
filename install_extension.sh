@@ -19,6 +19,118 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+
+
+# Function to fetch the latest GitHub release version
+fetch_github_version() {
+    local repo="$1"
+
+    if [ -z "$repo" ]; then
+        # Try to extract from package.json if not provided
+        if [ -f "package.json" ]; then
+            # First try to extract as a simple string format
+            local simple_repo=$(grep -o '"repository"[[:space:]]*:[[:space:]]*"[^"]*"' package.json | grep -o 'github.com[:/][^"]*' | sed 's/\.git$//')
+            
+            if [[ $simple_repo == *"github.com"* ]]; then
+                repo=$(echo $simple_repo | sed -E 's|github.com[:/]([^/]+/[^/"]+).*|\1|')
+                log_info "Extracted GitHub repo from package.json (simple format): $repo"
+            else
+                # Try object format with url field
+                local repo_url=$(grep -o '"repository"[^}]*}' package.json | grep -o '"url"[^"]*"[^"]*"' | cut -d'"' -f4)
+                if [[ $repo_url == *"github.com"* ]]; then
+                    repo=$(echo $repo_url | sed -E 's|.*github.com[:/]([^/]+/[^/]+).*|\1|' | sed 's/\.git$//')
+                    log_info "Extracted GitHub repo from package.json (object format): $repo"
+                fi
+            fi
+        fi
+    fi
+
+    if [ -z "$repo" ]; then
+        log_error "Error: GitHub repository not specified and could not be extracted from package.json."
+        log_warning "Please provide a repository using --github-repo=owner/repo"
+        return 1
+    fi
+
+    log_info "Fetching latest release version from GitHub repository: $repo"
+
+    # Fetch the latest release version from GitHub API
+    local latest_version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | jq -r '.tag_name')
+
+    if [ -z "$latest_version" ] || [ "$latest_version" == "null" ]; then
+        log_error "Error: Failed to fetch latest release version from GitHub."
+        return 1
+    fi
+
+    # Remove 'v' prefix if present
+    latest_version=${latest_version#v}
+
+    log_success "Latest GitHub release version: $latest_version"
+    # Only output the version number, nothing else
+    echo "$latest_version"
+    return 0
+}
+
+# Function to update package.json version
+update_package_version() {
+    local new_version="$1"
+
+    if [ -z "$new_version" ]; then
+        log_error "Error: No version provided to update package.json."
+        return 1
+    fi
+
+    log_info "Updating package.json version to $new_version"
+
+    # Use sed to update the version in package.json
+    if [ "$(uname)" == "Darwin" ]; then
+        # macOS version of sed requires different syntax
+        sed -i '' 's/"version":[[:space:]]*"[^"]*"/"version": "'"$new_version"'"/' package.json
+    else
+        # Linux version
+        sed -i 's/"version":[[:space:]]*"[^"]*"/"version": "'"$new_version"'"/' package.json
+    fi
+
+    if [ $? -eq 0 ]; then
+        log_success "Successfully updated package.json version to $new_version"
+        return 0
+    else
+        log_error "Failed to update package.json version."
+        return 1
+    fi
+}
+
+# Function to display usage information
+show_usage() {
+    log_info "\nCommand line usage:"
+    echo "./install.sh [options]"
+
+    log_info "\nOptions (can be provided in any order):"
+    echo "  --ide=<ide>       : code, code-insiders, windsurf, windsurf-next, cursor, skip"
+    echo "  --action=<action> : local, publish"
+    echo "  --version=<ver>   : patch, minor, major, none (for publish only)"
+    echo "  --token=<pat>     : Personal Access Token for VS Code Marketplace"
+    echo "  --ovsx=<option>   : yes, no (default: yes for publish action)"
+    echo "  --ovsx-token=<pat>: Personal Access Token for Open VSX Registry"
+    echo "  --use-github-version=<option> : yes, no (use latest GitHub release version)"
+    echo "  --github-repo=<owner/repo>   : GitHub repository in format owner/repo"
+
+    log_info "\nBackward compatibility: You can also use positional arguments:"
+    echo "  ./install.sh <ide> <action> [version] [pat]"
+
+    log_info "\nNotes:"
+    echo "  - You can store your Personal Access Tokens in a .env file in the root directory"
+    echo "    with the format:"
+    echo "    VSCE_PAT=\"your_vscode_token_here\""
+    echo "    OVSX_PAT=\"your_ovsx_token_here\""
+
+    log_info "\nExamples:"
+    echo "  ./install.sh --ide=cursor --action=local"
+    echo "  ./install.sh --action=publish --version=patch --token=your_vscode_token --ovsx-token=your_ovsx_token"
+    echo "  ./install.sh cursor local"
+}
+
+
+
 log_info "Project Template Manager - Build and Install Script\n"
 
 # Process command line arguments
@@ -28,6 +140,9 @@ VERSION_ARG=""
 PAT_ARG=""
 OVSX_ARG=""
 OVSX_PAT_ARG=""
+USE_GITHUB_VERSION=""
+GITHUB_REPO=""
+GITHUB_VERSION=""
 
 
 # Parse command line arguments in any order
@@ -50,6 +165,12 @@ for arg in "$@"; do
             ;;
         --ovsx-token=*)
             OVSX_PAT_ARG="${arg#*=}"
+            ;;
+        --use-github-version=*)
+            USE_GITHUB_VERSION="${arg#*=}"
+            ;;
+        --github-repo=*)
+            GITHUB_REPO="${arg#*=}"
             ;;
         *)
             # For backward compatibility, try to guess based on position
@@ -85,10 +206,19 @@ if [ ! -f "LICENSE" ]; then
 fi
 
 # Check for required dependencies
-for cmd in node npm; do
+for cmd in node npm curl jq; do
     if ! command_exists "$cmd"; then
-        log_error "Error: $cmd is not installed. Please install $cmd before continuing."
-        exit 1
+        if [ "$cmd" == "jq" ] || [ "$cmd" == "curl" ]; then
+            if [ "$USE_GITHUB_VERSION" == "yes" ]; then
+                log_error "Error: $cmd is not installed but required for GitHub version fetching. Please install $cmd before continuing."
+                exit 1
+            else
+                log_warning "$cmd is not installed. It's required for GitHub version fetching."
+            fi
+        else
+            log_error "Error: $cmd is not installed. Please install $cmd before continuing."
+            exit 1
+        fi
     fi
 done
 
@@ -114,6 +244,50 @@ npm install
 
 log_info "Compiling TypeScript..."
 npm run compile || { log_error "TypeScript compilation failed."; exit 1; }
+
+# Check if we should use GitHub version
+USE_GITHUB_VERSION_CHOICE=""
+if [ -n "$USE_GITHUB_VERSION" ]; then
+    if [ "$USE_GITHUB_VERSION" == "yes" ]; then
+        USE_GITHUB_VERSION_CHOICE="1"
+    elif [ "$USE_GITHUB_VERSION" == "no" ]; then
+        USE_GITHUB_VERSION_CHOICE="2"
+    else
+        echo -e "${RED}Invalid use-github-version argument: $USE_GITHUB_VERSION${NC}"
+        echo -e "${YELLOW}Valid options: yes, no${NC}"
+        exit 1
+    fi
+else
+    # Ask if we should use GitHub version
+    echo -e "${BLUE}Would you like to use the latest GitHub release version?${NC}"
+    echo "1) Yes, use latest GitHub release version"
+    echo "2) No, specify version increment manually"
+
+    read -p "Enter your choice (1-2): " USE_GITHUB_VERSION_CHOICE
+fi
+
+if [ "$USE_GITHUB_VERSION_CHOICE" == "1" ]; then
+    # Use GitHub version
+    GITHUB_VERSION=$(fetch_github_version "$GITHUB_REPO")
+    FETCH_STATUS=$?
+    
+    # Check if the fetch was successful
+    if [ $FETCH_STATUS -ne 0 ]; then
+        log_error "Failed to fetch GitHub version. Falling back to manual version selection."
+        USE_GITHUB_VERSION_CHOICE="2"
+    else
+        # Make sure we only have the version number
+        GITHUB_VERSION=$(echo "$GITHUB_VERSION" | tail -n 1)
+        log_success "Will use GitHub version: $GITHUB_VERSION"
+        
+        # Update package.json with the GitHub version
+        update_package_version "$GITHUB_VERSION"
+        if [ $? -ne 0 ]; then
+            log_error "Failed to update package.json version. Falling back to manual version selection."
+            USE_GITHUB_VERSION_CHOICE="2"
+        fi
+    fi
+fi
 
 # Determine whether to package or publish
 PUBLISH_CHOICE=""
@@ -289,58 +463,64 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
         exit 1
     fi
 
-    # Determine version increment choice
-    VERSION_CHOICE=""
-    if [ -n "$VERSION_ARG" ]; then
-        case "$VERSION_ARG" in
-            "patch")
-                VERSION_CHOICE="1"
+        # If not using GitHub version or if GitHub version fetch failed, use manual version selection
+    if [ "$USE_GITHUB_VERSION_CHOICE" == "2" ]; then
+        # Determine version increment choice
+        VERSION_CHOICE=""
+        if [ -n "$VERSION_ARG" ]; then
+            case "$VERSION_ARG" in
+                "patch")
+                    VERSION_CHOICE="1"
+                    ;;
+                "minor")
+                    VERSION_CHOICE="2"
+                    ;;
+                "major")
+                    VERSION_CHOICE="3"
+                    ;;
+                "none")
+                    VERSION_CHOICE="4"
+                    ;;
+                *)
+                    echo -e "${RED}Invalid version argument: $VERSION_ARG${NC}"
+                    echo -e "${YELLOW}Valid options: patch, minor, major, none${NC}"
+                    exit 1
+                    ;;
+            esac
+        else
+            # Ask about version increment
+            echo -e "${BLUE}What type of version increment would you like to make?${NC}"
+            echo "1) Patch (1.0.0 -> 1.0.1) - for bugfixes"
+            echo "2) Minor (1.0.0 -> 1.1.0) - for new features"
+            echo "3) Major (1.0.0 -> 2.0.0) - for breaking changes"
+            echo "4) None (use current version)"
+
+            read -p "Enter your choice (1-4): " VERSION_CHOICE
+        fi
+
+        VERSION_FLAG=""
+        case $VERSION_CHOICE in
+            1)
+                VERSION_FLAG="patch"
                 ;;
-            "minor")
-                VERSION_CHOICE="2"
+            2)
+                VERSION_FLAG="minor"
                 ;;
-            "major")
-                VERSION_CHOICE="3"
+            3)
+                VERSION_FLAG="major"
                 ;;
-            "none")
-                VERSION_CHOICE="4"
+            4)
+                VERSION_FLAG=""
                 ;;
             *)
-                echo -e "${RED}Invalid version argument: $VERSION_ARG${NC}"
-                echo -e "${YELLOW}Valid options: patch, minor, major, none${NC}"
-                exit 1
+                echo -e "${RED}Invalid choice. Using current version.${NC}"
+                VERSION_FLAG=""
                 ;;
         esac
     else
-        # Ask about version increment
-        echo -e "${BLUE}What type of version increment would you like to make?${NC}"
-        echo "1) Patch (1.0.0 -> 1.0.1) - for bugfixes"
-        echo "2) Minor (1.0.0 -> 1.1.0) - for new features"
-        echo "3) Major (1.0.0 -> 2.0.0) - for breaking changes"
-        echo "4) None (use current version)"
-
-        read -p "Enter your choice (1-4): " VERSION_CHOICE
+        # If using GitHub version, no need for version flag
+        VERSION_FLAG=""
     fi
-
-    VERSION_FLAG=""
-    case $VERSION_CHOICE in
-        1)
-            VERSION_FLAG="patch"
-            ;;
-        2)
-            VERSION_FLAG="minor"
-            ;;
-        3)
-            VERSION_FLAG="major"
-            ;;
-        4)
-            VERSION_FLAG=""
-            ;;
-        *)
-            echo -e "${RED}Invalid choice. Using current version.${NC}"
-            VERSION_FLAG=""
-            ;;
-    esac
 
     # Function to load tokens from .env file
     load_tokens_from_env() {
@@ -545,6 +725,65 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
 
                 return 1
             fi
+            
+            # Extract current version from package.json
+            local current_version=$(grep -o '"version":[[:space:]]*"[^"]*"' package.json | grep -o '[0-9][0-9\.]*')
+            if [ -z "$current_version" ]; then
+                log_error "Error: Could not determine current version from package.json."
+                return 1
+            fi
+            
+            # Extract publisher from package.json
+            local publisher=$(grep -o '"publisher":[[:space:]]*"[^"]*"' package.json | grep -o '"[^"]*"$' | tr -d '"')
+            local name=$(grep -o '"name":[[:space:]]*"[^"]*"' package.json | grep -o '"[^"]*"$' | tr -d '"')
+            
+            if [ -z "$publisher" ] || [ -z "$name" ]; then
+                log_error "Error: Could not determine publisher or name from package.json."
+                return 1
+            fi
+            
+            log_info "Checking if version $current_version already exists on Open VSX Registry..."
+            
+            # Check if the version already exists on Open VSX
+            local ovsx_check=$(curl -s "https://open-vsx.org/api/$publisher/$name/$current_version" | grep -o '"version"')
+            
+            if [ ! -z "$ovsx_check" ]; then
+                log_warning "Version $current_version is already published on Open VSX Registry."
+                log_info "You need to increment the version before publishing to Open VSX."
+                
+                # Ask if user wants to increment the version for Open VSX
+                echo -e "${BLUE}Would you like to increment the version for Open VSX?${NC}"
+                echo "1) Yes, increment patch version"
+                echo "2) No, skip Open VSX publishing"
+                
+                read -p "Enter your choice (1-2): " OVSX_VERSION_CHOICE
+                
+                if [ "$OVSX_VERSION_CHOICE" == "1" ]; then
+                    # Increment patch version
+                    local major=$(echo $current_version | cut -d. -f1)
+                    local minor=$(echo $current_version | cut -d. -f2)
+                    local patch=$(echo $current_version | cut -d. -f3)
+                    local new_patch=$((patch + 1))
+                    local new_version="$major.$minor.$new_patch"
+                    
+                    log_info "Incrementing version from $current_version to $new_version for Open VSX..."
+                    update_package_version "$new_version"
+                    
+                    # Repackage with new version
+                    log_info "Repackaging extension with new version..."
+                    if ! vsce package; then
+                        log_error "Failed to repackage extension with new version."
+                        return 1
+                    fi
+                    
+                    # Find the new VSIX file
+                    local new_vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f | xargs ls -t 2>/dev/null | head -n1)
+                    vsix_file="$new_vsix_file"
+                else
+                    log_info "Skipping Open VSX publication."
+                    return 0
+                fi
+            fi
 
             # Publish to Open VSX Registry
             log_info "Publishing to Open VSX Registry..."
@@ -585,34 +824,6 @@ OVSX_PAT="your_ovsx_token_here"
 EOL
         log_info "Sample .env file created. Please edit it with your actual tokens."
     fi
-}
-
-# Function to display usage information
-show_usage() {
-    log_info "\nCommand line usage:"
-    echo "./install.sh [options]"
-
-    log_info "\nOptions (can be provided in any order):"
-    echo "  --ide=<ide>       : code, code-insiders, windsurf, windsurf-next, cursor, skip"
-    echo "  --action=<action> : local, publish"
-    echo "  --version=<ver>   : patch, minor, major, none (for publish only)"
-    echo "  --token=<pat>     : Personal Access Token for VS Code Marketplace"
-    echo "  --ovsx=<option>   : yes, no (default: yes for publish action)"
-    echo "  --ovsx-token=<pat>: Personal Access Token for Open VSX Registry"
-
-    log_info "\nBackward compatibility: You can also use positional arguments:"
-    echo "  ./install.sh <ide> <action> [version] [pat]"
-
-    log_info "\nNotes:"
-    echo "  - You can store your Personal Access Tokens in a .env file in the root directory"
-    echo "    with the format:"
-    echo "    VSCE_PAT=\"your_vscode_token_here\""
-    echo "    OVSX_PAT=\"your_ovsx_token_here\""
-
-    log_info "\nExamples:"
-    echo "  ./install.sh --ide=cursor --action=local"
-    echo "  ./install.sh --action=publish --version=patch --token=your_vscode_token --ovsx-token=your_ovsx_token"
-    echo "  ./install.sh cursor local"
 }
 
 # Print usage info if no arguments provided
