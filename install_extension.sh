@@ -19,8 +19,6 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-
-
 # Function to fetch the latest GitHub release version
 fetch_github_version() {
     local repo="$1"
@@ -30,7 +28,7 @@ fetch_github_version() {
         if [ -f "package.json" ]; then
             # First try to extract as a simple string format
             local simple_repo=$(grep -o '"repository"[[:space:]]*:[[:space:]]*"[^"]*"' package.json | grep -o 'github.com[:/][^"]*' | sed 's/\.git$//')
-            
+
             if [[ $simple_repo == *"github.com"* ]]; then
                 repo=$(echo $simple_repo | sed -E 's|github.com[:/]([^/]+/[^/"]+).*|\1|')
                 log_info "Extracted GitHub repo from package.json (simple format): $repo"
@@ -270,7 +268,7 @@ if [ "$USE_GITHUB_VERSION_CHOICE" == "1" ]; then
     # Use GitHub version
     GITHUB_VERSION=$(fetch_github_version "$GITHUB_REPO")
     FETCH_STATUS=$?
-    
+
     # Check if the fetch was successful
     if [ $FETCH_STATUS -ne 0 ]; then
         log_error "Failed to fetch GitHub version. Falling back to manual version selection."
@@ -279,7 +277,7 @@ if [ "$USE_GITHUB_VERSION_CHOICE" == "1" ]; then
         # Make sure we only have the version number
         GITHUB_VERSION=$(echo "$GITHUB_VERSION" | tail -n 1)
         log_success "Will use GitHub version: $GITHUB_VERSION"
-        
+
         # Update package.json with the GitHub version
         update_package_version "$GITHUB_VERSION"
         if [ $? -ne 0 ]; then
@@ -725,39 +723,39 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
 
                 return 1
             fi
-            
+
             # Extract current version from package.json
             local current_version=$(grep -o '"version":[[:space:]]*"[^"]*"' package.json | grep -o '[0-9][0-9\.]*')
             if [ -z "$current_version" ]; then
                 log_error "Error: Could not determine current version from package.json."
                 return 1
             fi
-            
+
             # Extract publisher from package.json
             local publisher=$(grep -o '"publisher":[[:space:]]*"[^"]*"' package.json | grep -o '"[^"]*"$' | tr -d '"')
             local name=$(grep -o '"name":[[:space:]]*"[^"]*"' package.json | grep -o '"[^"]*"$' | tr -d '"')
-            
+
             if [ -z "$publisher" ] || [ -z "$name" ]; then
                 log_error "Error: Could not determine publisher or name from package.json."
                 return 1
             fi
-            
+
             log_info "Checking if version $current_version already exists on Open VSX Registry..."
-            
+
             # Check if the version already exists on Open VSX
             local ovsx_check=$(curl -s "https://open-vsx.org/api/$publisher/$name/$current_version" | grep -o '"version"')
-            
+
             if [ ! -z "$ovsx_check" ]; then
                 log_warning "Version $current_version is already published on Open VSX Registry."
                 log_info "You need to increment the version before publishing to Open VSX."
-                
+
                 # Ask if user wants to increment the version for Open VSX
                 echo -e "${BLUE}Would you like to increment the version for Open VSX?${NC}"
                 echo "1) Yes, increment patch version"
                 echo "2) No, skip Open VSX publishing"
-                
+
                 read -p "Enter your choice (1-2): " OVSX_VERSION_CHOICE
-                
+
                 if [ "$OVSX_VERSION_CHOICE" == "1" ]; then
                     # Increment patch version
                     local major=$(echo $current_version | cut -d. -f1)
@@ -765,17 +763,17 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
                     local patch=$(echo $current_version | cut -d. -f3)
                     local new_patch=$((patch + 1))
                     local new_version="$major.$minor.$new_patch"
-                    
+
                     log_info "Incrementing version from $current_version to $new_version for Open VSX..."
                     update_package_version "$new_version"
-                    
+
                     # Repackage with new version
                     log_info "Repackaging extension with new version..."
                     if ! vsce package; then
                         log_error "Failed to repackage extension with new version."
                         return 1
                     fi
-                    
+
                     # Find the new VSIX file
                     local new_vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f | xargs ls -t 2>/dev/null | head -n1)
                     vsix_file="$new_vsix_file"
