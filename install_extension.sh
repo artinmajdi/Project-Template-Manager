@@ -68,31 +68,36 @@ fetch_github_version() {
     return 0
 }
 
-# Function to update package.json version
+# Function to update version in package.json and README.md
 update_package_version() {
     local new_version="$1"
 
     if [ -z "$new_version" ]; then
-        log_error "Error: No version provided to update package.json."
+        log_error "Error: No version provided to update version."
         return 1
     fi
 
-    log_info "Updating package.json version to $new_version"
+    log_info "Updating version to $new_version in package.json and README.md"
 
-    # Use sed to update the version in package.json
+    # Update package.json
     if [ "$(uname)" == "Darwin" ]; then
         # macOS version of sed requires different syntax
         sed -i '' 's/"version":[[:space:]]*"[^"]*"/"version": "'"$new_version"'"/' package.json
+        # Update README.md badge
+        sed -i '' 's/version-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*-blue\.svg/version-'"$new_version"'-blue.svg/' README.md
     else
         # Linux version
         sed -i 's/"version":[[:space:]]*"[^"]*"/"version": "'"$new_version"'"/' package.json
+        # Update README.md badge
+        sed -i 's/version-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*-blue\.svg/version-'"$new_version"'-blue.svg/' README.md
     fi
 
-    if [ $? -eq 0 ]; then
-        log_success "Successfully updated package.json version to $new_version"
+    local update_status=$?
+    if [ $update_status -eq 0 ]; then
+        log_success "Successfully updated version to $new_version in package.json and README.md"
         return 0
     else
-        log_error "Failed to update package.json version."
+        log_error "Failed to update version."
         return 1
     fi
 }
