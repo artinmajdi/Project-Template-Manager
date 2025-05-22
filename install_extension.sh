@@ -786,6 +786,22 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
 
             # Publish to Open VSX Registry
             log_info "Publishing to Open VSX Registry..."
+            # Get the current version from package.json
+            current_version=$(grep -o '"version":[[:space:]]*"[^"]*"' package.json | grep -o '[0-9][0-9\.]*')
+            log_info "Using version $current_version for Open VSX publication"
+            # Rebuild the VSIX file to ensure it has the latest version
+            log_info "Rebuilding VSIX file with version $current_version..."
+            if ! vsce package; then
+                log_error "Failed to rebuild VSIX file with version $current_version."
+                return 1
+            fi
+            # Get the newly built VSIX file
+            vsix_file=$(find . -maxdepth 1 -name "*.vsix" -type f | xargs ls -t 2>/dev/null | head -n1)
+            if [ -z "$vsix_file" ]; then
+                log_error "Failed to find the rebuilt VSIX file."
+                return 1
+            fi
+            log_info "Using VSIX file: $vsix_file"
             if ovsx publish "$vsix_file" -p "$token"; then
                 log_success "Successfully published to Open VSX Registry!"
                 log_info "Your extension should now be available on both marketplaces!"
