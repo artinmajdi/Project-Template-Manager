@@ -16,6 +16,30 @@ echo -e "${BOLD}${BLUE}🚀 React TSX Website Runner${RESET}"
 echo -e "${BOLD}${BLUE}=================================================${RESET}"
 echo ""
 
+# Check if user wants to run existing server
+echo -e "${BOLD}Would you like to:${RESET}"
+echo -e "[1] Run an existing server"
+echo -e "[2] Set up a new project"
+echo ""
+echo -e "Enter your choice (1-2):"
+read -r INITIAL_CHOICE
+
+case $INITIAL_CHOICE in
+    1)
+        show_success "Starting the development server..."
+        cd dashboard
+        echo -e "Your app will be available at ${BOLD}http://localhost:3000${RESET}"
+        npm run dev
+        exit 0
+        ;;
+    2)
+        # Continue with existing script
+        ;;
+    *)
+        error_exit "Invalid choice. Please run the script again and select a valid option (1-2)."
+        ;;
+esac
+
 # ===== UTILITY FUNCTIONS =====
 
 # Display error and exit
