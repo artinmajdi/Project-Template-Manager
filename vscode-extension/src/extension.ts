@@ -91,22 +91,40 @@ export function activate(context: vscode.ExtensionContext) {
 	// Register the TreeDataProvider for the sidebar view
 	vscode.window.registerTreeDataProvider('projectTemplateExplorer', templateExplorerProvider);
 
+	// Get current extension version
+	const extensionVersion = vscode.extensions.getExtension('artinmajdi.project-template-manager')?.packageJSON.version;
+	const lastKnownVersion = context.globalState.get<string>('lastKnownVersion');
+
 	// Ensure templates directory exists
 	const templatesDir = path.join(context.globalStorageUri.fsPath, 'templates');
 	ensureTemplatesDir(templatesDir);
 
-	// Install all available templates from the extension's templates directory
-	const extensionTemplatesDir = path.join(context.extensionPath, 'templates');
-	if (fs.existsSync(extensionTemplatesDir)) {
-		const templates = fs.readdirSync(extensionTemplatesDir, { withFileTypes: true });
-		for (const template of templates) {
-			if (template.isDirectory()) {
-				const templatePath = path.join(extensionTemplatesDir, template.name);
-				templateManager.installTemplate(templatePath, template.name).then(() => {
-					templateExplorerProvider.refresh();
-				});
+	// If version has changed, clear and update templates
+	if (extensionVersion !== lastKnownVersion) {
+		console.log(`Version changed from ${lastKnownVersion} to ${extensionVersion}, updating templates...`);
+		
+		// Clear existing templates
+		if (fs.existsSync(templatesDir)) {
+			fs.rmSync(templatesDir, { recursive: true, force: true });
+			ensureTemplatesDir(templatesDir);
+		}
+
+		// Install all available templates from the extension's templates directory
+		const extensionTemplatesDir = path.join(context.extensionPath, 'templates');
+		if (fs.existsSync(extensionTemplatesDir)) {
+			const templates = fs.readdirSync(extensionTemplatesDir, { withFileTypes: true });
+			for (const template of templates) {
+				if (template.isDirectory()) {
+					const templatePath = path.join(extensionTemplatesDir, template.name);
+					templateManager.installTemplate(templatePath, template.name).then(() => {
+						templateExplorerProvider.refresh();
+					});
+				}
 			}
 		}
+
+		// Update the last known version
+		context.globalState.update('lastKnownVersion', extensionVersion);
 	}
 
 	const excludeItems = ['.git', '.vscode', 'node_modules', 'out', '.DS_Store', '.vscodeignore', '.gitignore', 'package.json', 'package-lock.json', 'tsconfig.json', 'eslint.config.mjs', '.vscode-test.mjs', 'CHANGELOG.md', 'vsc-extension-quickstart.md']; // Items to exclude when copying

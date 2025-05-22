@@ -1,8 +1,8 @@
 # Project Template Manager
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://marketplace.visualstudio.com/items?itemName=artinmajdi.project-template-manager)
+[![Version](https://img.shields.io/badge/version-1.4.8-blue.svg)](https://marketplace.visualstudio.com/items?itemName=artinmajdi.project-template-manager)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
-[![VS Code](https://img.shields.io/badge/VS%20Code-1.96.0+-blue.svg)](https://code.visualstudio.com/updates/v1_96)
+[![VS Code](https://img.shields.io/badge/VS%20Code-1.101.0-blue.svg)](https://code.visualstudio.com/updates/v1_96)
 
 ## Overview
 
