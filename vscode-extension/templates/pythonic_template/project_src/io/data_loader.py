@@ -8,9 +8,7 @@ import logging
 from typing import Optional, Any
 
 import pandas as pd
-
-
-logger = logging.getLogger(__name__)
+from project_src.configuration import params, Settings, ConfigManager, logger
 
 
 class DataLoader:
@@ -20,6 +18,8 @@ class DataLoader:
         pass
 
     def load_data(self) -> Any:
+        logger.info("Loading data...")
+        # Placeholder for data loading logic
         pass
 
 

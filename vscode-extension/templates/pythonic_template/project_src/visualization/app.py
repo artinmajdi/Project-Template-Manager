@@ -9,11 +9,7 @@ from typing import Optional
 import streamlit as st
 
 from project_src.io.data_loader import DataLoader
-
-
-# Configure logging
-logging.basicConfig( level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s' )
-logger = logging.getLogger(__name__)
+from project_src.configuration import params, Settings, ConfigManager, logger
 
 
 
@@ -30,12 +26,20 @@ class Dashboard:
 
 
 	def load_data(self):
-		"""Load the dataset."""
-		pass
+		"""Load the dataset using the DataLoader."""
+		# Initialize the DataLoader
+		logger.info("Initializing DataLoader...")
+		self.data_loader = DataLoader()
+
+		# Load the dataset
+		self.data = self.data_loader.load_data()
 
 	def run(self):
 		"""Render the dashboard."""
 		# Set page config
+		logger.info("Setting up Streamlit page configuration...")
+
+		# Set up the Streamlit page configuration
 		st.set_page_config(
 			page_title="Project Visualization",
 			page_icon="🦵",

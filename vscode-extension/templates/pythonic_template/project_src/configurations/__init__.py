@@ -15,6 +15,8 @@ from .params import (
 from .settings import (
     ConfigManager,
     Settings,
+    logger,
+    setup_logging,
 )
 
 __all__ = [
@@ -25,4 +27,6 @@ __all__ = [
     # Settings classes
     'Settings',
     'ConfigManager',
+    'logger',
+    'setup_logging',
 ]
