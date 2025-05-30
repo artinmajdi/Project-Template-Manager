@@ -1,8 +1,8 @@
 {
-  "name": "codedependency-visualizer",
+  "name": "code-dependency-visualizer",
   "displayName": "Code Dependency Visualizer",
   "description": "Visualize code dependencies as an interactive graph using robust Python analysis",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "artinmajdi",
   "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",
   "engines": {
