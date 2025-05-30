@@ -153,20 +153,20 @@ npx vsce package
 
 ## 📝 Version History
 
-### 🎉 v1.1.0 (Latest)
+### 🎉 v1.0.0 (Latest)
 - **✅ Fixed depth filtering**: Level parameter now correctly limits dependency analysis depth
 - **🎨 Improved graph layout**: Hierarchical left-to-right layout for superior readability
 - **⚡ Streamlined UX**: Single-click start with default depth 5, adjustable in-graph
 - **📐 Better positioning**: Structured node placement with clean, straight connection lines
 - **🔧 Enhanced controls**: Real-time depth adjustment without re-analysis
 
-### 🚀 v1.0.0
+### 🚀 v0.9.0
 - **🔄 Complete rewrite**: Python-based dependency analysis for maximum accuracy
 - **📈 Improved accuracy**: Significantly better Python import resolution
 - **📦 Package support**: Enhanced handling of relative imports and package structures
 - **🎮 Interactive controls**: Advanced graph visualization with zoom, pan, drag
 
-### 🌱 v0.1.0
+### 🌱 v0.8.0
 - **🎬 Initial release**: Basic dependency visualization
 - **🔍 Multi-language**: TypeScript-based analysis (legacy)
 - **📊 Force-directed**: Original force simulation layout (legacy)
