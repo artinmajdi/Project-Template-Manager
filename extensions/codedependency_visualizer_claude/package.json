@@ -1,0 +1,46 @@
+{
+  "name": "codedependency-visualizer",
+  "displayName": "Code Dependency Visualizer - Claude",
+  "description": "Visualize code dependencies as an interactive graph",
+  "version": "0.0.1",
+  "publisher": "artinmajdi",
+  "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": ["Visualization", "Other"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codeDependencyVisualizer.showGraph",
+        "title": "Show Code Dependency Graph"
+      },
+      {
+        "command": "codeDependencyVisualizer.analyzeFile",
+        "title": "Analyze Dependencies for Current File"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.26",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.4.2",
+    "esbuild": "^0.25.5",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/d3": "^7.4.3",
+    "d3": "^7.9.0"
+  }
+}

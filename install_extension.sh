@@ -132,8 +132,6 @@ show_usage() {
     echo "  ./install.sh cursor local"
 }
 
-
-
 log_info "Project Template Manager - Build and Install Script\n"
 
 # Process command line arguments
@@ -146,8 +144,6 @@ OVSX_PAT_ARG=""
 USE_GITHUB_VERSION=""
 GITHUB_REPO=""
 GITHUB_VERSION=""
-
-
 
 # Parse command line arguments in any order
 for arg in "$@"; do
@@ -199,8 +195,45 @@ done
 # Store the project root directory
 PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-# Navigate to the vscode-extension directory
-cd "$PROJECT_ROOT/vscode-extension"
+# --- START: New section to select extension ---
+log_info "Available extensions:"
+AVAILABLE_EXTENSIONS=()
+# Find all directories in extensions/ folder using a for loop and globbing
+for item_path in "$PROJECT_ROOT/extensions/"*/; do
+    # Check if the glob found anything and if the item is a directory
+    if [ -d "$item_path" ]; then
+        item_name=$(basename "$item_path")
+        AVAILABLE_EXTENSIONS+=("$item_name")
+    fi
+done
+
+if [ ${#AVAILABLE_EXTENSIONS[@]} -eq 0 ]; then
+    log_error "No extensions found in the '$PROJECT_ROOT/extensions/' directory."
+    exit 1
+fi
+
+for i in "${!AVAILABLE_EXTENSIONS[@]}"; do
+    echo "  $((i+1))) ${AVAILABLE_EXTENSIONS[$i]}"
+done
+
+SELECTED_INDEX=""
+while true; do
+    read -p "Select an extension to work with (enter number): " SELECTION
+    if [[ "$SELECTION" =~ ^[0-9]+$ ]] && [ "$SELECTION" -ge 1 ] && [ "$SELECTION" -le ${#AVAILABLE_EXTENSIONS[@]} ]; then
+        SELECTED_INDEX=$((SELECTION-1))
+        break
+    else
+        log_warning "Invalid selection. Please enter a number from the list."
+    fi
+done
+
+SELECTED_EXTENSION_NAME="${AVAILABLE_EXTENSIONS[$SELECTED_INDEX]}"
+SELECTED_EXTENSION_PATH="$PROJECT_ROOT/extensions/$SELECTED_EXTENSION_NAME"
+log_success "You selected: $SELECTED_EXTENSION_NAME"
+# --- END: New section to select extension ---
+
+# Navigate to the SELECTED vscode-extension directory
+cd "$SELECTED_EXTENSION_PATH" || { log_error "Failed to navigate to $SELECTED_EXTENSION_PATH"; exit 1; }
 
 # Check if license file exists in the correct location
 if [ ! -f "LICENSE" ]; then
@@ -467,7 +500,7 @@ elif [ "$PUBLISH_CHOICE" == "2" ]; then
         exit 1
     fi
 
-        # If not using GitHub version or if GitHub version fetch failed, use manual version selection
+    # If not using GitHub version or if GitHub version fetch failed, use manual version selection
     if [ "$USE_GITHUB_VERSION_CHOICE" == "2" ]; then
         # Determine version increment choice
         VERSION_CHOICE=""

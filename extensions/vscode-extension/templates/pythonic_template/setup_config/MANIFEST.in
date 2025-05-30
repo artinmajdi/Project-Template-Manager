@@ -1,0 +1,39 @@
+# Include the README file
+include README.md
+
+# Include license file
+include LICENSE
+
+# Include setup files
+include setup.py
+include pyproject.toml
+include setup_config/requirements.txt
+include setup_config/pytest.ini
+
+# Include configuration files
+include src/utils/config.yaml
+include setup_config/.env.example
+
+# Include documentation
+recursive-include docs *
+
+# Include package data
+recursive-include src *.py
+recursive-include src *.yaml
+recursive-include src *.json
+recursive-include src *.txt
+
+# Exclude compiled python files
+global-exclude *.py[cod]
+global-exclude __pycache__
+global-exclude *.so
+global-exclude .DS_Store
+
+# Exclude test files from the package
+prune tests
+
+# Exclude environment and build directories
+prune .env
+prune .venv
+prune build
+prune dist

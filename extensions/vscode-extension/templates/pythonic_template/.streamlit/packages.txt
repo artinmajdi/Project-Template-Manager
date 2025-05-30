@@ -1,0 +1,29 @@
+# System dependencies for Streamlit Cloud
+# These packages will be installed via apt-get
+
+# Required for pandas and numpy
+libatlas-base-dev
+
+# Required for matplotlib
+libfreetype6-dev
+
+# Required for image processing
+libpng-dev
+libjpeg-dev
+
+# Required for scipy
+gfortran
+libopenblas-dev
+
+# Required for PDF processing
+poppler-utils
+tesseract-ocr
+libtesseract-dev
+
+# Required for XML processing
+libxml2-dev
+libxslt1-dev
+
+# Utilities
+curl
+wget
