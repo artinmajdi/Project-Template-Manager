@@ -1,0 +1,52 @@
+[server]
+# Enable CORS for production deployment
+enableCORS = true
+# Enable XSRF protection for security
+enableXsrfProtection = true
+# Port to run on (will use default 8501 if not specified)
+port = 8501
+# Maximum size for uploaded files (100MB)
+maxUploadSize = 100
+# Maximum message size for WebSocket communication
+maxMessageSize = 200
+
+fileWatcherType = "watchdog"
+runOnSave = true
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+# Set server port in browser address
+# serverPort = 8501
+
+[theme]
+primaryColor = "#0466c8"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
+
+[runner]
+# Set garbage collection after script execution
+postScriptGC = true
+
+# Python path is now configured differently in Streamlit
+
+[server.headless]
+# Headless mode disables browser opening when streamlit runs
+# Set to true for server deployments, false for local development
+headless = false
+
+
+# Caching options have been removed as they are no longer valid config options
+
+[logger]
+# Configure logging level
+level = "info"
+
+[client]
+# Show error details in client
+showErrorDetails = true
+# Toolbar mode for development
+toolbarMode = "auto"
+
