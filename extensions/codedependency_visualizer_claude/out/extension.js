@@ -59,10 +59,7 @@ function activate(context) {
             if (!entryPoint) {
                 return;
             }
-            const maxDepth = await selectDepthLevel();
-            if (maxDepth === undefined) {
-                return;
-            }
+            const maxDepth = 5; // Default depth, user can change it in the webview
             progress.report({ increment: 30, message: "Parsing files..." });
             const dependencies = await analyzer.analyzeDependencies(entryPoint, workspaceRoot, maxDepth);
             progress.report({ increment: 60, message: "Building graph..." });
@@ -110,10 +107,7 @@ function activate(context) {
             cancellable: false
         }, async (progress) => {
             progress.report({ increment: 20 });
-            const maxDepth = await selectDepthLevel();
-            if (maxDepth === undefined) {
-                return;
-            }
+            const maxDepth = 5; // Default depth, user can change it in the webview
             progress.report({ increment: 30 });
             const dependencies = await analyzer.analyzeDependencies(currentFile, workspaceRoot, maxDepth);
             progress.report({ increment: 60 });

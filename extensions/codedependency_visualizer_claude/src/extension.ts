@@ -30,10 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
                     return;
                 }
 
-                const maxDepth = await selectDepthLevel();
-                if (maxDepth === undefined) {
-                    return;
-                }
+                const maxDepth = 5; // Default depth, user can change it in the webview
 
                 progress.report({ increment: 30, message: "Parsing files..." });
                 const dependencies = await analyzer.analyzeDependencies(entryPoint, workspaceRoot, maxDepth);
@@ -102,10 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
             }, async (progress) => {
                 progress.report({ increment: 20 });
 
-                const maxDepth = await selectDepthLevel();
-                if (maxDepth === undefined) {
-                    return;
-                }
+                const maxDepth = 5; // Default depth, user can change it in the webview
 
                 progress.report({ increment: 30 });
 

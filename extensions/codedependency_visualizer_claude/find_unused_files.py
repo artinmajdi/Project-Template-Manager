@@ -276,9 +276,13 @@ class ImportTracer:
 
         return resolved_files
 
-    def build_dependency_graph(self, entry_point: Path) -> Tuple[Set[Path], Dict[Path, Set[Path]]]:
+    def build_dependency_graph(self, entry_point: Path, max_depth: int = 10) -> Tuple[Set[Path], Dict[Path, Set[Path]]]:
         """
         Trace all imports starting from an entry point and build a dependency graph.
+
+        Args:
+            entry_point: The starting point for analysis
+            max_depth: Maximum depth to traverse (1 = only entry point, 2 = entry + direct deps, etc.)
 
         Returns:
             A tuple containing:
@@ -288,19 +292,25 @@ class ImportTracer:
         all_dependent_files: Set[Path] = set()
         dependency_graph: Dict[Path, Set[Path]] = defaultdict(set)
 
-        queue: List[Path] = [entry_point.resolve()]
+        # Queue now stores tuples of (file_path, depth_level)
+        queue: List[Tuple[Path, int]] = [(entry_point.resolve(), 0)]
         processed_for_imports: Set[Path] = set() # Files whose imports have been parsed
+        file_depths: Dict[Path, int] = {entry_point.resolve(): 0}  # Track depth of each file
 
         all_dependent_files.add(entry_point.resolve())
 
         head = 0
         while head < len(queue):
-            current_file = queue[head]
+            current_file, current_depth = queue[head]
             head += 1
 
             if current_file in processed_for_imports:
                 continue
             processed_for_imports.add(current_file)
+
+            # Only process imports if we haven't reached max depth
+            if current_depth >= max_depth:
+                continue
 
             # Get imports from this file
             imports = self._parse_imports(current_file)
@@ -314,16 +324,20 @@ class ImportTracer:
                         direct_deps_for_current_file.add(resolved_file)
                         if resolved_file not in all_dependent_files:
                             all_dependent_files.add(resolved_file)
-                            queue.append(resolved_file)
+                            new_depth = current_depth + 1
+                            file_depths[resolved_file] = new_depth
+                            # Only add to queue if within depth limit
+                            if new_depth < max_depth:
+                                queue.append((resolved_file, new_depth))
 
             if direct_deps_for_current_file:
                 dependency_graph[current_file.resolve()] = direct_deps_for_current_file
 
         return all_dependent_files, dependency_graph
 
-    def trace_imports(self, entry_point: Path) -> Set[Path]:
+    def trace_imports(self, entry_point: Path, max_depth: int = 10) -> Set[Path]:
         """Trace all imports starting from an entry point and return a flat set of used files."""
-        all_dependent_files, _ = self.build_dependency_graph(entry_point)
+        all_dependent_files, _ = self.build_dependency_graph(entry_point, max_depth)
         return all_dependent_files
 
     def analyze(self, entry_points: List[Path]) -> Dict[str, Set[Path]]:
@@ -812,12 +826,6 @@ def generate_dependency_report(project_root: Path, entry_point: Path, all_depend
         print(f"✓ Saved DOT graph to: {output_file_dot}")
         print("  You can visualize this file using Graphviz (e.g., `dot -Tpng {output_file_dot} -o graph.png`)")
 
-        # Optionally, still save the text tree if desired, or remove this part
-        # output_file_txt = project_root / f'dependencies_{entry_point.stem}_tree.txt'
-        # with open(output_file_txt, 'w') as f:
-        # ... write tree_output_lines ...
-        # print(f"✓ Saved text tree to: {output_file_txt}")
-
     # Summary
     print("\n" + "=" * 80)
     print("SUMMARY")
@@ -913,7 +921,7 @@ def main():
             sys.exit(1)
 
         tracer = ImportTracer(project_root)
-        all_dependent_files, dependency_graph = tracer.build_dependency_graph(entry_point)
+        all_dependent_files, dependency_graph = tracer.build_dependency_graph(entry_point, args.max_depth)
 
         # Convert to JSON format expected by VS Code extension
         nodes = []
@@ -985,7 +993,7 @@ def main():
             entry_point = project_root / args.entry_points[0]
 
         print(f"\nAnalyzing dependencies for: {entry_point.relative_to(project_root)}")
-        all_dependent_files, dependency_graph = tracer.build_dependency_graph(entry_point)
+        all_dependent_files, dependency_graph = tracer.build_dependency_graph(entry_point, args.max_depth)
 
         # Generate dependency report
         generate_dependency_report(project_root, entry_point, all_dependent_files, dependency_graph)

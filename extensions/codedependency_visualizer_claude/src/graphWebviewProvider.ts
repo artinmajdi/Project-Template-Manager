@@ -223,12 +223,65 @@ export class GraphWebviewProvider {
                         node.y = height / 2 + (Math.random() - 0.5) * 100;
                     });
 
-                    // Create force simulation
+                    // Create a hierarchical layout instead of force simulation
+                    const levels = new Map();
+                    const visited = new Set();
+
+                    // Calculate levels using BFS from entry point
+                    function calculateLevels() {
+                        const queue = [{ id: data.entryPoint, level: 0 }];
+                        levels.set(data.entryPoint, 0);
+                        visited.add(data.entryPoint);
+
+                        while (queue.length > 0) {
+                            const { id, level } = queue.shift();
+
+                            // Find all nodes that this node points to
+                            data.edges.forEach(edge => {
+                                if (edge.source === id && !visited.has(edge.target)) {
+                                    levels.set(edge.target, level + 1);
+                                    visited.add(edge.target);
+                                    queue.push({ id: edge.target, level: level + 1 });
+                                }
+                            });
+                        }
+                    }
+
+                    calculateLevels();
+
+                    // Group nodes by level
+                    const nodesByLevel = new Map();
+                    data.nodes.forEach(node => {
+                        const level = levels.get(node.id) || 0;
+                        if (!nodesByLevel.has(level)) {
+                            nodesByLevel.set(level, []);
+                        }
+                        nodesByLevel.get(level).push(node);
+                    });
+
+                    // Position nodes in a left-to-right hierarchy
+                    const levelWidth = 200;
+                    const nodeHeight = 60;
+
+                    nodesByLevel.forEach((nodesAtLevel, level) => {
+                        const x = 100 + level * levelWidth;
+                        const startY = (height - (nodesAtLevel.length - 1) * nodeHeight) / 2;
+
+                        nodesAtLevel.forEach((node, index) => {
+                            node.x = x;
+                            node.y = startY + index * nodeHeight;
+                            node.fx = x; // Fix x position
+                            node.fy = startY + index * nodeHeight; // Fix y position
+                        });
+                    });
+
+                    // Create force simulation with minimal forces for stable positioning
                     const simulation = d3.forceSimulation(data.nodes)
-                        .force("link", d3.forceLink(data.edges).id(d => d.id).distance(100))
-                        .force("charge", d3.forceManyBody().strength(-300))
-                        .force("center", d3.forceCenter(width / 2, height / 2))
-                        .force("collision", d3.forceCollide().radius(30));
+                        .force("link", d3.forceLink(data.edges).id(d => d.id).distance(150).strength(0.1))
+                        .force("charge", d3.forceManyBody().strength(-50))
+                        .force("collision", d3.forceCollide().radius(25))
+                        .alpha(0.3)
+                        .alphaDecay(0.1);
 
                     // Create links
                     const link = g.append("g")
@@ -310,22 +363,19 @@ export class GraphWebviewProvider {
                             .attr("transform", d => \`translate(\${d.x},\${d.y})\`);
                     });
 
-                    // Drag functions
+                    // Drag functions - allow vertical movement but maintain horizontal levels
                     function dragstarted(event, d) {
-                        if (!event.active) simulation.alphaTarget(0.3).restart();
-                        d.fx = d.x;
-                        d.fy = d.y;
+                        if (!event.active) simulation.alphaTarget(0.1).restart();
+                        d.fy = d.y; // Only fix y position, allow x to maintain level
                     }
 
                     function dragged(event, d) {
-                        d.fx = event.x;
-                        d.fy = event.y;
+                        d.fy = event.y; // Allow vertical dragging only
                     }
 
                     function dragended(event, d) {
                         if (!event.active) simulation.alphaTarget(0);
-                        d.fx = null;
-                        d.fy = null;
+                        d.fy = null; // Release y constraint
                     }
 
                     // Control functions
@@ -337,21 +387,40 @@ export class GraphWebviewProvider {
                     };
 
                     window.centerGraph = function() {
-                        const bounds = g.node().getBBox();
-                        const fullWidth = width;
-                        const fullHeight = height;
-                        const widthScale = fullWidth / bounds.width;
-                        const heightScale = fullHeight / bounds.height;
-                        const scale = 0.8 * Math.min(widthScale, heightScale);
-                        const translate = [
-                            fullWidth / 2 - scale * (bounds.x + bounds.width / 2),
-                            fullHeight / 2 - scale * (bounds.y + bounds.height / 2)
-                        ];
+                        try {
+                            const bounds = g.node().getBBox();
+                            const fullWidth = width;
+                            const fullHeight = height;
+                            const padding = 50;
 
-                        svg.transition().duration(750).call(
-                            zoom.transform,
-                            d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
-                        );
+                            const availableWidth = fullWidth - 2 * padding;
+                            const availableHeight = fullHeight - 2 * padding;
+
+                            const widthScale = availableWidth / bounds.width;
+                            const heightScale = availableHeight / bounds.height;
+                            const scale = Math.min(widthScale, heightScale, 1); // Don't scale up
+
+                            const centerX = fullWidth / 2;
+                            const centerY = fullHeight / 2;
+                            const boundsX = bounds.x + bounds.width / 2;
+                            const boundsY = bounds.y + bounds.height / 2;
+
+                            const translate = [
+                                centerX - scale * boundsX,
+                                centerY - scale * boundsY
+                            ];
+
+                            svg.transition().duration(750).call(
+                                zoom.transform,
+                                d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
+                            );
+                        } catch (error) {
+                            // Fallback to simple center
+                            svg.transition().duration(750).call(
+                                zoom.transform,
+                                d3.zoomIdentity
+                            );
+                        }
                     };
 
                     window.toggleLabels = function() {

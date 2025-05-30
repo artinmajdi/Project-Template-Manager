@@ -53,6 +53,12 @@ This extension uses a sophisticated Python script (`find_unused_files.py`) that:
 
 ## Version History
 
+### 1.1.0
+- **Fixed depth filtering**: Level parameter now correctly limits dependency analysis depth
+- **Improved graph layout**: Changed to hierarchical left-to-right layout for better readability
+- **Streamlined UX**: Removed duplicate depth selection, defaults to level 5 with in-graph controls
+- **Better positioning**: More structured node placement with straighter connection lines
+
 ### 1.0.0
 - Major rewrite to use Python-based dependency analysis
 - Significantly improved accuracy for Python imports
