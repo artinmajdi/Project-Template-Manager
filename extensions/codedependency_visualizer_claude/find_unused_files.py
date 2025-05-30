@@ -21,6 +21,7 @@ import importlib.util
 from collections import defaultdict
 import fnmatch
 import re
+import json
 
 
 # TODO: make it ignore the gitignore files/folders
@@ -879,6 +880,17 @@ def main():
         action='store_true',
         help='Test gitignore parsing and exit'
     )
+    parser.add_argument(
+        '--json-output',
+        action='store_true',
+        help='Output dependency graph as JSON for VS Code extension'
+    )
+    parser.add_argument(
+        '--max-depth',
+        type=int,
+        default=10,
+        help='Maximum depth for dependency analysis (default: 10)'
+    )
 
     args = parser.parse_args()
 
@@ -887,6 +899,56 @@ def main():
     # Test gitignore parsing if requested
     if args.test_gitignore:
         test_gitignore_parsing(project_root)
+        return
+
+    # JSON output mode for VS Code extension
+    if args.json_output:
+        if not args.entry_points:
+            print("Error: Entry point required for JSON output mode", file=sys.stderr)
+            sys.exit(1)
+
+        entry_point = project_root / args.entry_points[0]
+        if not entry_point.exists():
+            print(f"Error: Entry point {entry_point} does not exist", file=sys.stderr)
+            sys.exit(1)
+
+        tracer = ImportTracer(project_root)
+        all_dependent_files, dependency_graph = tracer.build_dependency_graph(entry_point)
+
+        # Convert to JSON format expected by VS Code extension
+        nodes = []
+        edges = []
+
+        # Create nodes
+        for file_path in all_dependent_files:
+            rel_path = file_path.relative_to(project_root)
+            file_type = 'python'  # Since we're analyzing Python files
+
+            nodes.append({
+                'id': str(rel_path),
+                'label': file_path.name,
+                'fullPath': str(file_path),
+                'type': file_type
+            })
+
+        # Create edges
+        for source_file, target_files in dependency_graph.items():
+            source_rel = source_file.relative_to(project_root)
+            for target_file in target_files:
+                target_rel = target_file.relative_to(project_root)
+                edges.append({
+                    'source': str(source_rel),
+                    'target': str(target_rel)
+                })
+
+        result = {
+            'nodes': nodes,
+            'edges': edges,
+            'entryPoint': str(entry_point.relative_to(project_root)),
+            'maxDepth': args.max_depth
+        }
+
+        print(json.dumps(result, indent=2))
         return
 
     # Mode selection

@@ -36,11 +36,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
-const dependencyAnalyzer_1 = require("./dependencyAnalyzer");
+const pythonDependencyAnalyzer_1 = require("./pythonDependencyAnalyzer");
 const graphWebviewProvider_1 = require("./graphWebviewProvider");
 function activate(context) {
     console.log('Code Dependency Visualizer is now active!');
-    const analyzer = new dependencyAnalyzer_1.DependencyAnalyzer();
+    const analyzer = new pythonDependencyAnalyzer_1.PythonDependencyAnalyzer(context.extensionPath);
     const webviewProvider = new graphWebviewProvider_1.GraphWebviewProvider(context.extensionUri);
     context.subscriptions.push(vscode.commands.registerCommand('codeDependencyVisualizer.showGraph', async () => {
         const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -59,14 +59,35 @@ function activate(context) {
             if (!entryPoint) {
                 return;
             }
+            const maxDepth = await selectDepthLevel();
+            if (maxDepth === undefined) {
+                return;
+            }
             progress.report({ increment: 30, message: "Parsing files..." });
-            const dependencies = await analyzer.analyzeDependencies(entryPoint, workspaceRoot);
+            const dependencies = await analyzer.analyzeDependencies(entryPoint, workspaceRoot, maxDepth);
             progress.report({ increment: 60, message: "Building graph..." });
             const panel = vscode.window.createWebviewPanel('dependencyGraph', 'Code Dependency Graph', vscode.ViewColumn.One, {
                 enableScripts: true,
                 retainContextWhenHidden: true
             });
             panel.webview.html = webviewProvider.getHtmlForWebview(panel.webview, dependencies);
+            // Handle messages from the webview
+            panel.webview.onDidReceiveMessage(async (message) => {
+                switch (message.command) {
+                    case 'changeDepth':
+                        vscode.window.withProgress({
+                            location: vscode.ProgressLocation.Notification,
+                            title: `Re-analyzing with depth ${message.depth}...`,
+                            cancellable: false
+                        }, async (progress) => {
+                            progress.report({ increment: 50 });
+                            const newDependencies = await analyzer.analyzeDependencies(entryPoint, workspaceRoot, message.depth);
+                            panel.webview.html = webviewProvider.getHtmlForWebview(panel.webview, newDependencies);
+                            progress.report({ increment: 100 });
+                        });
+                        break;
+                }
+            }, undefined, context.subscriptions);
             progress.report({ increment: 100 });
         });
     }));
@@ -88,14 +109,36 @@ function activate(context) {
             title: "Analyzing dependencies for current file...",
             cancellable: false
         }, async (progress) => {
+            progress.report({ increment: 20 });
+            const maxDepth = await selectDepthLevel();
+            if (maxDepth === undefined) {
+                return;
+            }
             progress.report({ increment: 30 });
-            const dependencies = await analyzer.analyzeDependencies(currentFile, workspaceRoot);
+            const dependencies = await analyzer.analyzeDependencies(currentFile, workspaceRoot, maxDepth);
             progress.report({ increment: 60 });
             const panel = vscode.window.createWebviewPanel('dependencyGraph', `Dependencies: ${vscode.workspace.asRelativePath(currentFile)}`, vscode.ViewColumn.One, {
                 enableScripts: true,
                 retainContextWhenHidden: true
             });
             panel.webview.html = webviewProvider.getHtmlForWebview(panel.webview, dependencies);
+            // Handle messages from the webview
+            panel.webview.onDidReceiveMessage(async (message) => {
+                switch (message.command) {
+                    case 'changeDepth':
+                        vscode.window.withProgress({
+                            location: vscode.ProgressLocation.Notification,
+                            title: `Re-analyzing with depth ${message.depth}...`,
+                            cancellable: false
+                        }, async (progress) => {
+                            progress.report({ increment: 50 });
+                            const newDependencies = await analyzer.analyzeDependencies(currentFile, workspaceRoot, message.depth);
+                            panel.webview.html = webviewProvider.getHtmlForWebview(panel.webview, newDependencies);
+                            progress.report({ increment: 100 });
+                        });
+                        break;
+                }
+            }, undefined, context.subscriptions);
             progress.report({ increment: 100 });
         });
     }));
@@ -147,6 +190,27 @@ async function selectEntryPoint(workspaceRoot) {
         default:
             return undefined;
     }
+}
+async function selectDepthLevel() {
+    const input = await vscode.window.showInputBox({
+        prompt: 'Enter the maximum depth level for dependency analysis',
+        placeHolder: 'Enter a number (e.g., 3 for 3 levels deep)',
+        value: '3',
+        validateInput: (value) => {
+            const num = parseInt(value);
+            if (isNaN(num) || num < 1) {
+                return 'Please enter a valid number greater than 0';
+            }
+            if (num > 10) {
+                return 'Maximum depth is limited to 10 to prevent performance issues';
+            }
+            return null;
+        }
+    });
+    if (input === undefined) {
+        return undefined;
+    }
+    return parseInt(input);
 }
 function deactivate() { }
 //# sourceMappingURL=extension.js.map

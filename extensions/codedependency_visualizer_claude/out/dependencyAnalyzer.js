@@ -47,20 +47,36 @@ class DependencyAnalyzer {
         this.edges = [];
         this.workspaceRoot = '';
         this.gitignorePatterns = [];
+        this.maxDepth = 1;
+        this.fileLevels = new Map();
     }
-    async analyzeDependencies(entryPoint, workspaceRoot) {
+    async analyzeDependencies(entryPoint, workspaceRoot, maxDepth = 1) {
         this.workspaceRoot = workspaceRoot;
+        this.maxDepth = maxDepth;
         this.processedFiles.clear();
         this.nodes.clear();
         this.edges = [];
+        this.fileLevels.clear();
         // Load gitignore patterns
         await this.loadGitignorePatterns();
-        // Start analysis from entry point
-        await this.analyzeFile(entryPoint);
+        // Start analysis from entry point with level 0
+        await this.analyzeFile(entryPoint, 0);
+        // Ensure we have at least the entry point node
+        const entryNodeId = path.relative(workspaceRoot, entryPoint);
+        if (this.nodes.size === 0) {
+            const fileType = this.getFileType(entryPoint);
+            this.nodes.set(entryNodeId, {
+                id: entryNodeId,
+                label: path.basename(entryPoint),
+                fullPath: entryPoint,
+                type: fileType !== 'unknown' ? fileType : 'python'
+            });
+        }
         return {
             nodes: Array.from(this.nodes.values()),
             edges: this.edges,
-            entryPoint: path.relative(workspaceRoot, entryPoint)
+            entryPoint: entryNodeId,
+            maxDepth: this.maxDepth
         };
     }
     async loadGitignorePatterns() {
@@ -102,28 +118,43 @@ class DependencyAnalyzer {
     }
     shouldIgnore(filePath) {
         const relativePath = path.relative(this.workspaceRoot, filePath);
-        return this.gitignorePatterns.some(pattern => pattern.test(relativePath));
+        const ignored = this.gitignorePatterns.some(pattern => {
+            const matches = pattern.test(relativePath);
+            return matches;
+        });
+        return ignored;
     }
-    async analyzeFile(filePath) {
-        if (this.processedFiles.has(filePath) || this.shouldIgnore(filePath)) {
+    async analyzeFile(filePath, currentLevel) {
+        if (this.shouldIgnore(filePath)) {
             return;
         }
-        this.processedFiles.add(filePath);
+        // Check if we've exceeded the maximum depth
+        if (currentLevel > this.maxDepth) {
+            return;
+        }
+        const alreadyProcessed = this.processedFiles.has(filePath);
+        // Get file type
         const fileType = this.getFileType(filePath);
         if (fileType === 'unknown') {
             return;
         }
-        // Add node for this file
-        const nodeId = path.relative(this.workspaceRoot, filePath);
-        this.nodes.set(nodeId, {
-            id: nodeId,
-            label: path.basename(filePath),
-            fullPath: filePath,
-            type: fileType
-        });
+        // Add node if not already processed
+        if (!alreadyProcessed) {
+            this.processedFiles.add(filePath);
+            this.fileLevels.set(filePath, currentLevel);
+            const nodeId = path.relative(this.workspaceRoot, filePath);
+            this.nodes.set(nodeId, {
+                id: nodeId,
+                label: path.basename(filePath),
+                fullPath: filePath,
+                type: fileType
+            });
+        }
+        // Process imports for this file
         try {
             const content = await readFile(filePath, 'utf-8');
             const imports = await this.extractImports(content, filePath, fileType);
+            const nodeId = path.relative(this.workspaceRoot, filePath);
             for (const importPath of imports) {
                 const resolvedPath = await this.resolveImport(importPath, filePath, fileType);
                 if (resolvedPath && resolvedPath !== filePath) {
@@ -134,7 +165,7 @@ class DependencyAnalyzer {
                         target: targetId
                     });
                     // Recursively analyze the imported file
-                    await this.analyzeFile(resolvedPath);
+                    await this.analyzeFile(resolvedPath, currentLevel + 1);
                 }
             }
         }
@@ -162,7 +193,7 @@ class DependencyAnalyzer {
         const imports = [];
         switch (fileType) {
             case 'python':
-                imports.push(...this.extractPythonImports(content));
+                imports.push(...this.extractPythonImports(content, filePath));
                 break;
             case 'javascript':
             case 'typescript':
@@ -171,18 +202,44 @@ class DependencyAnalyzer {
         }
         return imports;
     }
-    extractPythonImports(content) {
+    extractPythonImports(content, filePath) {
         const imports = [];
         // Match import statements
         const importRegex = /^\s*import\s+(\S+)/gm;
         const fromImportRegex = /^\s*from\s+(\S+)\s+import/gm;
         let match;
         while ((match = importRegex.exec(content)) !== null) {
-            imports.push(match[1].split('.')[0]);
+            // For 'import X.Y.Z', we want the full module path
+            imports.push(match[1]);
         }
         while ((match = fromImportRegex.exec(content)) !== null) {
-            if (!match[1].startsWith('.')) {
-                imports.push(match[1]);
+            const importPath = match[1];
+            if (importPath.startsWith('.')) {
+                // Handle relative imports
+                const levels = (importPath.match(/\./g) || []).length;
+                const modulePart = importPath.slice(levels);
+                // Get the directory of the current file relative to workspace
+                const fileDir = path.dirname(path.relative(this.workspaceRoot, filePath));
+                const dirParts = fileDir.split(path.sep).filter(p => p);
+                if (levels === 1) {
+                    // from . import X or from .X import Y
+                    if (modulePart) {
+                        imports.push([...dirParts, modulePart].join('.'));
+                    }
+                }
+                else {
+                    // from .. import X or from ..X import Y
+                    const baseParts = dirParts.slice(0, -(levels - 1));
+                    if (baseParts.length >= 0) {
+                        if (modulePart) {
+                            imports.push([...baseParts, modulePart].join('.'));
+                        }
+                    }
+                }
+            }
+            else {
+                // Absolute import
+                imports.push(importPath);
             }
         }
         return imports;

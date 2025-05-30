@@ -1,61 +1,60 @@
 # Code Dependency Visualizer
 
-A VS Code extension that visualizes code dependencies as an interactive graph. It analyzes import statements in Python, JavaScript, and TypeScript files to build a dependency graph.
+A VS Code extension that visualizes Python code dependencies as an interactive graph.
 
 ## Features
 
-- **Multi-language support**: Analyzes Python, JavaScript, and TypeScript files
-- **Interactive graph visualization**: Powered by D3.js with zoom, pan, and drag capabilities
-- **Smart import resolution**: Handles relative and absolute imports
-- **Gitignore support**: Respects .gitignore patterns to exclude unwanted files
-- **Entry point selection**: Multiple ways to select the starting point for analysis
+- **Accurate Python Analysis**: Uses a robust Python script to analyze imports and dependencies
+- **Interactive Graph**: Navigate through your codebase dependencies with an interactive D3.js visualization
+- **Depth Control**: Adjust the analysis depth to focus on immediate dependencies or explore deeper relationships
+- **Entry Point Selection**: Choose any Python file as the starting point for analysis
+- **Git-aware**: Respects .gitignore patterns and excludes irrelevant files
+
+## Requirements
+
+- **Python 3**: The extension requires Python 3 to be installed and available in your PATH
+- **VS Code 1.96.0+**
 
 ## Usage
 
-1. Open a workspace in VS Code
-2. Run one of the following commands:
-   - **"Show Code Dependency Graph"** - Analyze dependencies from a selected entry point
-   - **"Analyze Dependencies for Current File"** - Analyze dependencies starting from the currently open file
+1. Open a Python project in VS Code
+2. Use Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run:
+   - `Show Code Dependency Graph` - Analyze dependencies starting from a selected entry point
+   - `Analyze Dependencies for Current File` - Analyze dependencies for the currently open file
 
-### Entry Point Selection
+3. Select your entry point file when prompted
+4. Choose the analysis depth (number of dependency levels to explore)
+5. Interact with the generated graph:
+   - **Drag** nodes to reposition them
+   - **Zoom** in/out with mouse wheel
+   - **Hover** over nodes to see full file paths
+   - Use **controls** to reset zoom, center graph, or toggle labels
 
-When using "Show Code Dependency Graph", you can select the entry point in three ways:
-- Use the currently open file
-- Browse and select a file
-- Enter the path manually
+## Graph Features
 
-## Graph Visualization
+- **Entry Point**: Highlighted with a red border and larger size
+- **Node Colors**: Different colors for Python files (blue)
+- **Dependencies**: Arrows show import relationships
+- **Depth Control**: Real-time adjustment of analysis depth
 
-The dependency graph shows:
-- **Nodes**: Represent files in your project
-  - Blue nodes: Python files
-  - Yellow nodes: JavaScript files
-  - Blue (darker) nodes: TypeScript files
-  - Red border: Entry point file
-- **Edges**: Arrows showing import relationships
-- **Controls**: Reset zoom, center graph, toggle labels
+## Technical Details
 
-## Supported Import Patterns
+This extension uses a sophisticated Python script (`find_unused_files.py`) that:
+- Parses Python AST to accurately identify imports
+- Handles relative and absolute imports
+- Respects gitignore patterns
+- Provides comprehensive dependency analysis
 
-### Python
-- `import module`
-- `from module import something`
-- Package imports with `__init__.py`
+## Troubleshooting
 
-### JavaScript/TypeScript
-- ES6 imports: `import ... from 'module'`
-- CommonJS: `require('module')`
-- Relative imports: `./module`, `../module`
+**"Python not found" error**: Ensure Python 3 is installed and available in your system PATH. The extension tries both `python3` and `python` commands.
 
-## Development
+**Empty graph**: Make sure your entry point file exists and has dependencies within your project. Standard library imports are not shown.
 
-To set up the development environment:
+## Version History
 
-1. Clone the repository
-2. Run `npm install`
-3. Run `npm run compile` to build
-4. Press F5 in VS Code to launch a new instance with the extension
-
-## License
-
-ISC
+### 1.0.0
+- Major rewrite to use Python-based dependency analysis
+- Significantly improved accuracy for Python imports
+- Better handling of relative imports and package structures
+- Enhanced graph visualization and controls
