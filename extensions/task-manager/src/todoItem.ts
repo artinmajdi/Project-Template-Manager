@@ -7,6 +7,7 @@ export class TodoItem extends vscode.TreeItem {
     public readonly source: 'manual' | 'codebase';
     public readonly file?: string;
     public readonly line?: number;
+    public readonly category?: string;
 
     constructor(
         id: string,
@@ -14,7 +15,8 @@ export class TodoItem extends vscode.TreeItem {
         isCompleted: boolean = false,
         source: 'manual' | 'codebase' = 'manual',
         file?: string,
-        line?: number
+        line?: number,
+        category?: string
     ) {
         super(text, vscode.TreeItemCollapsibleState.None);
 
@@ -24,13 +26,19 @@ export class TodoItem extends vscode.TreeItem {
         this.source = source;
         this.file = file;
         this.line = line;
+        this.category = category;
 
-        // Set the label with strikethrough for completed items
-        this.label = isCompleted ? `~~${text}~~` : text;
+        // Set the label with strikethrough for completed items and category badge
+        let displayText = text;
+        if (category && source === 'codebase') {
+            const categoryEmoji = this.getCategoryEmoji(category);
+            displayText = `${categoryEmoji} ${text}`;
+        }
+        this.label = isCompleted ? `~~${displayText}~~` : displayText;
 
-        // Set icon based on completion status
+        // Set icon based on completion status and category
         this.iconPath = new vscode.ThemeIcon(
-            isCompleted ? 'check' : 'circle-outline'
+            isCompleted ? 'check' : this.getCategoryIcon(category, source)
         );
 
         // Set context value for menu commands
@@ -52,8 +60,39 @@ export class TodoItem extends vscode.TreeItem {
         }
     }
 
+    private getCategoryEmoji(category?: string): string {
+        if (!category) return '';
+
+        switch (category.toLowerCase()) {
+            case 'bug': return '🐛';
+            case 'feature': return '✨';
+            case 'refactor': return '♻️';
+            case 'documentation': return '📚';
+            case 'testing': return '🧪';
+            default: return '📝';
+        }
+    }
+
+    private getCategoryIcon(category?: string, source?: string): string {
+        if (source === 'manual') return 'circle-outline';
+        if (!category) return 'circle-outline';
+
+        switch (category.toLowerCase()) {
+            case 'bug': return 'bug';
+            case 'feature': return 'star';
+            case 'refactor': return 'tools';
+            case 'documentation': return 'book';
+            case 'testing': return 'beaker';
+            default: return 'circle-outline';
+        }
+    }
+
     private createTooltip(): string {
         let tooltip = this.text;
+
+        if (this.category) {
+            tooltip += `\n\nCategory: ${this.category.charAt(0).toUpperCase() + this.category.slice(1)}`;
+        }
 
         if (this.source === 'codebase' && this.file) {
             const fileName = this.file.split('/').pop() || this.file;

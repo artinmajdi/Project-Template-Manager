@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { spawn } from 'child_process';
 import { TodoItem } from './todoItem';
 
 interface Todo {
@@ -11,6 +12,22 @@ interface Todo {
     file?: string;
     line?: number;
     dateCreated: string;
+    category?: string;
+}
+
+interface PythonTodoResult {
+    workspace: string;
+    generated_at: string;
+    total_todos: number;
+    todos: Array<{
+        id: number;
+        file: string;
+        line: number;
+        text: string;
+        context: string;
+        category: string;
+        timestamp: string;
+    }>;
 }
 
 export class TodoProvider implements vscode.TreeDataProvider<TodoItem> {
@@ -24,7 +41,7 @@ export class TodoProvider implements vscode.TreeDataProvider<TodoItem> {
         // Ensure the global storage directory exists
         const globalStorageUri = context.globalStorageUri;
         fs.mkdirSync(globalStorageUri.fsPath, { recursive: true });
-        
+
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (workspaceFolder) {
             this.todoFilePath = path.join(workspaceFolder.uri.fsPath, '.todo');
@@ -52,7 +69,8 @@ export class TodoProvider implements vscode.TreeDataProvider<TodoItem> {
                     todo.isCompleted,
                     todo.source,
                     todo.file,
-                    todo.line
+                    todo.line,
+                    todo.category
                 ));
 
             const completedTodos = this.todos
@@ -63,7 +81,8 @@ export class TodoProvider implements vscode.TreeDataProvider<TodoItem> {
                     todo.isCompleted,
                     todo.source,
                     todo.file,
-                    todo.line
+                    todo.line,
+                    todo.category
                 ));
 
             return Promise.resolve([...incompleteTodos, ...completedTodos]);
@@ -111,6 +130,117 @@ export class TodoProvider implements vscode.TreeDataProvider<TodoItem> {
         this.todos = this.todos.filter(todo => todo.source === 'manual');
 
         try {
+            // Try to use the Python script first
+            const pythonTodos = await this.runPythonScript(workspaceFolder.uri.fsPath);
+
+            if (pythonTodos) {
+                // Process Python script results
+                pythonTodos.todos.forEach(todo => {
+                    const newTodo: Todo = {
+                        id: this.generateId(),
+                        text: todo.text,
+                        isCompleted: false,
+                        source: 'codebase',
+                        file: path.resolve(workspaceFolder.uri.fsPath, todo.file),
+                        line: todo.line - 1, // Convert to 0-based index for VSCode
+                        dateCreated: new Date().toISOString(),
+                        category: todo.category
+                    };
+                    this.todos.push(newTodo);
+                });
+
+                this.saveTodos();
+                this.refresh();
+
+                vscode.window.showInformationMessage(
+                    `Found ${pythonTodos.total_todos} TODOs using advanced detection (with gitignore support)`
+                );
+                return;
+            }
+        } catch (error) {
+            console.warn('Python script failed, falling back to regex method:', error);
+            vscode.window.showWarningMessage(
+                'Advanced TODO detection failed, using basic method. Install Python and pathspec for better results.'
+            );
+        }
+
+        // Fallback to original regex method
+        await this.syncTodosWithRegex(workspaceFolder);
+    }
+
+    private async runPythonScript(workspacePath: string): Promise<PythonTodoResult | null> {
+        return new Promise((resolve, reject) => {
+            // Get the path to the Python script
+            const extensionPath = this.context.extensionPath;
+            const scriptPath = path.join(extensionPath, 'scripts', 'find_todos.py');
+
+            // Check if script exists
+            if (!fs.existsSync(scriptPath)) {
+                reject(new Error('Python script not found'));
+                return;
+            }
+
+            // Try different Python commands
+            const pythonCommands = ['python3', 'python'];
+            let commandIndex = 0;
+
+            const tryNextCommand = () => {
+                if (commandIndex >= pythonCommands.length) {
+                    reject(new Error('No working Python interpreter found'));
+                    return;
+                }
+
+                const pythonCmd = pythonCommands[commandIndex];
+                const args = [scriptPath, workspacePath, '--extension-mode'];
+
+                const process = spawn(pythonCmd, args, {
+                    cwd: workspacePath,
+                    stdio: ['pipe', 'pipe', 'pipe']
+                });
+
+                let stdout = '';
+                let stderr = '';
+
+                process.stdout.on('data', (data) => {
+                    stdout += data.toString();
+                });
+
+                process.stderr.on('data', (data) => {
+                    stderr += data.toString();
+                });
+
+                process.on('close', (code) => {
+                    if (code === 0 && stdout.trim()) {
+                        try {
+                            const result = JSON.parse(stdout);
+                            resolve(result);
+                        } catch (parseError) {
+                            console.error('Failed to parse JSON output:', parseError);
+                            console.error('Raw output:', stdout);
+                            commandIndex++;
+                            tryNextCommand();
+                        }
+                    } else {
+                        console.error(`Python command failed with code ${code}`);
+                        console.error('stderr:', stderr);
+                        commandIndex++;
+                        tryNextCommand();
+                    }
+                });
+
+                process.on('error', (error) => {
+                    console.error(`Failed to start ${pythonCmd}:`, error);
+                    commandIndex++;
+                    tryNextCommand();
+                });
+            };
+
+            tryNextCommand();
+        });
+    }
+
+    private async syncTodosWithRegex(workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
+        try {
             const todoRegex = /(?:\/\/|#|<!--|\/\*)\s*(?:TODO|To-?Do)\s*:?\s*(.+?)(?:\*\/|-->|$)/gi;
             const files = await vscode.workspace.findFiles('**/*', '**/node_modules/**');
 
@@ -121,7 +251,8 @@ export class TodoProvider implements vscode.TreeDataProvider<TodoItem> {
 
                 lines.forEach((line, lineIndex) => {
                     let match;
-                    while ((match = todoRegex.exec(line)) !== null) {
+                    const regex = new RegExp(todoRegex);
+                    while ((match = regex.exec(line)) !== null) {
                         const todoText = match[1].trim();
                         if (todoText) {
                             const todo: Todo = {

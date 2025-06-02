@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name        = "extensions"
+version     = "1.7.0"
+description = "A project template manager for vscode"
+readme      = "README.md"
+authors     = [ {name = "Artin Majdi", email = "msm2024@gmail.com"} ]
+license     = {text = "MIT"}
+dependencies = [
+    "dotenv",
+    "pathspec",
+    "requests",
+]
+
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Development Tools",
+]
+keywords = ["project template manager", "vscode extensions", "task manager"]
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage      = "https://github.com/artinmajdi/project-template-manager"
+Documentation = "https://github.com/artinmajdi/project-template-manager/docs"
+Repository    = "https://github.com/artinmajdi/project-template-manager.git"
+Issues        = "https://github.com/artinmajdi/project-template-manager/issues"
+
+
+[tool.setuptools]
+packages = ["extensions"]
+include-package-data = true
