@@ -28,8 +28,7 @@
       "todoManager": [
         {
           "id": "todoManagerView",
-          "name": "TO-DO LIST",
-          "when": "workspaceHasFolder"
+          "name": "TO-DO LIST"
         }
       ]
     },

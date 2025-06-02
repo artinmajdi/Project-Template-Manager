@@ -21,11 +21,15 @@ export class TodoProvider implements vscode.TreeDataProvider<TodoItem> {
     private todoFilePath: string;
 
     constructor(private context: vscode.ExtensionContext) {
+        // Ensure the global storage directory exists
+        const globalStorageUri = context.globalStorageUri;
+        fs.mkdirSync(globalStorageUri.fsPath, { recursive: true });
+        
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (workspaceFolder) {
             this.todoFilePath = path.join(workspaceFolder.uri.fsPath, '.todo');
         } else {
-            this.todoFilePath = path.join(context.globalStorageUri.fsPath, 'todos.json');
+            this.todoFilePath = path.join(globalStorageUri.fsPath, 'todos.json');
         }
     }
 
