@@ -695,5 +695,695 @@
     "line": 19,
     "dateCreated": "2025-06-02T04:32:22.940Z",
     "category": "general"
+  },
+  {
+    "id": "mbelfybplakq5h5s18n",
+    "text": "List",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 0,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpy7yr0o51o0m",
+    "text": "List\\n\\n\")...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 10,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybprs50ghxle3",
+    "text": "finder output files...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 18,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpjr5mnvnk4yo",
+    "text": "s_*.md...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 22,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp8qyj2thv76o",
+    "text": "s_*.json...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 26,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp744yi5rzek5",
+    "text": "s_*.txt...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 30,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp5gewjbzivdt",
+    "text": "make it ignore the gitignore files/folders...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 34,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpqswxrz0ttr9",
+    "text": "Manager Extension Troubleshooting Guide...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 38,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpxetpp22wi4r",
+    "text": "Manager - VSCode Extension...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 42,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpntuhqgkfj9",
+    "text": "your task`...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 46,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpom0sb2nw7r",
+    "text": "your task`...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 50,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpg4sp24bg86",
+    "text": "task description`...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 54,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp26wswskhkkc",
+    "text": "task description`...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 58,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpkk4vv3yt958",
+    "text": "Handle negative prices...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 82,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybprqmrzz16nfg",
+    "text": "Check for duplicate items and merge quantities...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 86,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpulg24k4isw",
+    "text": "Integrate with payment system...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 90,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpf37pbovwzxr",
+    "text": "Send confirmation email...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 94,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp9ee8fgvlgft",
+    "text": "Decide how we want to type this...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 98,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpqkwm93pr4jn",
+    "text": "...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 102,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpz798zmprzq",
+    "text": "make it ignore the gitignore files/folders...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 106,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpgr3y7xrfdii",
+    "text": "make it ignore the gitignore files/folders...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 110,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp2jclnizcgzt",
+    "text": "something is something here...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 114,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpzc480hroej9",
+    "text": "something to load something here...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 118,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpczvwv4dl8n",
+    "text": "Add input validation for items array...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 124,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "feature"
+  },
+  {
+    "id": "mbelfybp62t0y0hkule",
+    "text": "Implement cart persistence...`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 128,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "feature"
+  },
+  {
+    "id": "mbelfybpfl30ddtwix9",
+    "text": "your task",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 62,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybprzg3psqw8i",
+    "text": "your task",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 66,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpkny4hutiaae",
+    "text": "task description",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 70,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpud41qgrxryr",
+    "text": "task description",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 74,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp9dlo36gnlwl",
+    "text": "Add error handling for invalid itemId",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/todos_workspace.md",
+    "line": 134,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "bug"
+  },
+  {
+    "id": "mbelfybpmdpwr1y9b18",
+    "text": "List\\n\\n\")",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/find_todos.py",
+    "line": 246,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybphb5a794kj3",
+    "text": "Finder Script",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/find_todos.py",
+    "line": 2,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp7z7pefzgs0u",
+    "text": "finder output files",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/.gitignore",
+    "line": 82,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp1fejlgmc1k",
+    "text": "s_*.md",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/.gitignore",
+    "line": 83,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp8ry8uf78b35",
+    "text": "s_*.json",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/.gitignore",
+    "line": 84,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp6rbl9v64j1u",
+    "text": "s_*.txt",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/.gitignore",
+    "line": 85,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpc1ad0r4xrbf",
+    "text": "make it ignore the gitignore files/folders",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/code-dependency-visualizer/find_unused_files.py",
+    "line": 26,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpn2hfhrljtfm",
+    "text": "item representation",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/INTEGRATION.md",
+    "line": 75,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp8d45woka8ja",
+    "text": "Manager Extension Troubleshooting Guide",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/TROUBLESHOOTING.md",
+    "line": 0,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp2vpxipcdma5",
+    "text": "Manager - VSCode Extension",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 0,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpvbm21vuay2",
+    "text": "your task`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 21,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpfdaba9yeson",
+    "text": "your task`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 22,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybp4hxyg932i0b",
+    "text": "task description`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 134,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpuhcoyq5adi",
+    "text": "task description`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 135,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpnazw2975j4j",
+    "text": "fix this issue`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 140,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "bug"
+  },
+  {
+    "id": "mbelfybpu6rqwbotpcq",
+    "text": "needs attention`",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 141,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpgh9csfez8l",
+    "text": "your task",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 23,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpsmvhqngtmdc",
+    "text": "your task",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 24,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpojqwm067mw",
+    "text": "task description",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 136,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpubp4i6ybrjp",
+    "text": "task description",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 137,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpemk7awjqju",
+    "text": "your task",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 25,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpv0muw7auf9l",
+    "text": "task description",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 138,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpctk29b9lkcp",
+    "text": "task description",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 139,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpjjkyuuexoc",
+    "text": "s are automatically saved to a `.todo` file in your workspace root. This file is in JSON format and can be committed to version control if you want to share todos with your team.",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/README.md",
+    "line": 128,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpezthtd2hj1",
+    "text": "Add input validation for items array",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/sample-todos.js",
+    "line": 3,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "feature"
+  },
+  {
+    "id": "mbelfybpht7ej486zla",
+    "text": "Handle negative prices",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/sample-todos.js",
+    "line": 7,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpov8t937ugm",
+    "text": "Implement cart persistence",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/sample-todos.js",
+    "line": 17,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "feature"
+  },
+  {
+    "id": "mbelfybphxz7l06uz56",
+    "text": "Check for duplicate items and merge quantities",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/sample-todos.js",
+    "line": 21,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpfundhfl5zok",
+    "text": "Integrate with payment system",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/sample-todos.js",
+    "line": 31,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpzzy4pn43qr",
+    "text": "Send confirmation email",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/sample-todos.js",
+    "line": 32,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpal1sjllof1a",
+    "text": "Add error handling for invalid itemId",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/sample-todos.js",
+    "line": 26,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "bug"
+  },
+  {
+    "id": "mbelfybp2i79kvfo5bl",
+    "text": "Decide how we want to type this",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/.vscode-test/vscode-darwin-arm64-1.100.2/Visual Studio Code.app/Contents/Resources/app/extensions/html-language-features/server/lib/jquery.d.ts",
+    "line": 965,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpylw8p1qnzjs",
+    "text": "List\\n\\n\")",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/scripts/find_todos.py",
+    "line": 264,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpl1qjw93867",
+    "text": "Finder Script",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager/scripts/find_todos.py",
+    "line": 2,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpy7xigm9l71",
+    "text": "- [ ] Make the scripts work",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/project-template-manager/templates/claude_tsx_to_website/docs/TODO.md",
+    "line": 0,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpz4bufhes4si",
+    "text": "make it ignore the gitignore files/folders",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/project-template-manager/templates/scripts/find_unused_files.py",
+    "line": 25,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpztp0dgwplva",
+    "text": "make it ignore the gitignore files/folders",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/project-template-manager/templates/pythonic_template/scripts/find_unused_files.py",
+    "line": 25,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpjbr3ig6fps",
+    "text": "something is something here",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/project-template-manager/templates/pythonic_template/project_src/visualization/app.py",
+    "line": 30,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
+  },
+  {
+    "id": "mbelfybpnbeqjwj6e0i",
+    "text": "something to load something here",
+    "isCompleted": false,
+    "source": "codebase",
+    "file": "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/project-template-manager/templates/pythonic_template/project_src/io/data_loader.py",
+    "line": 19,
+    "dateCreated": "2025-06-02T04:32:38.533Z",
+    "category": "general"
   }
 ]
