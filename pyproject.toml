@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name        = "extensions"
-version     = "1.7.0"
+version     = "1.0.0"
 description = "A project template manager for vscode"
 readme      = "README.md"
 authors     = [ {name = "Artin Majdi", email = "msm2024@gmail.com"} ]
