@@ -27,6 +27,8 @@ class Dashboard:
 
 	def load_data(self):
 		"""Load the dataset using the DataLoader."""
+
+		# TO-DO: something is something here
 		# Initialize the DataLoader
 		logger.info("Initializing DataLoader...")
 		self.data_loader = DataLoader()

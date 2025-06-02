@@ -79,3 +79,8 @@ Thumbs.db
 
 # Node.js dependencies
 node_modules/
+
+# # TODO finder output files
+# todos_*.md
+# todos_*.json
+# todos_*.txt

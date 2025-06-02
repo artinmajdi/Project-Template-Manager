@@ -17,6 +17,7 @@ class DataLoader:
     def __init__(self, data_dir: Optional[str] = None):
         pass
 
+    # TODO: something to load something here
     def load_data(self) -> Any:
         logger.info("Loading data...")
         # Placeholder for data loading logic

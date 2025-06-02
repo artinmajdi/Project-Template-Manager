@@ -7,6 +7,7 @@
 **Issue**: The Todo Manager icon doesn't appear in the VS Code activity bar (left sidebar).
 
 **Solutions**:
+
 - **Workspace Folder**: The original configuration required a workspace folder to be open. This has been fixed, but make sure you:
   - Have a folder open in VS Code when testing
   - Or use the updated `package.json` without the `when` condition
@@ -25,6 +26,7 @@
 **To properly install the extension**:
 
 1. **Build the extension**:
+
    ```bash
    cd "/Users/artinmajdi/Documents/GitHubs/Career/Vibe Coding/project_template_manager/extensions/task-manager"
    npm install
@@ -32,10 +34,11 @@
    ```
 
 2. **Package the extension**:
+
    ```bash
    # Install vsce if not already installed
    npm install -g @vscode/vsce
-   
+
    # Package the extension
    vsce package
    ```
@@ -49,12 +52,14 @@
 ### 3. Icon Not Displaying
 
 The extension uses VS Code's built-in codicons. If the icon doesn't show:
+
 - Try using a different icon format in `package.json`
 - Use an SVG icon file instead
 
 ### 4. Debugging the Extension
 
 To debug the extension:
+
 1. Open the extension folder in VS Code
 2. Press F5 to launch a new VS Code instance with the extension loaded
 3. Check the Debug Console for any errors
@@ -68,6 +73,7 @@ To debug the extension:
 ## Verification Steps
 
 After making changes:
+
 1. Compile: `npm run compile`
 2. Package: `vsce package`
 3. Uninstall old version from VS Code
@@ -82,7 +88,7 @@ After making changes:
 
 ## Testing the Extension
 
-1. **Without Workspace**: 
+1. **Without Workspace**:
    - Open VS Code without any folder
    - The Todo Manager should still appear in the activity bar
    - Todos will be saved globally
