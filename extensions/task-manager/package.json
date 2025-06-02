@@ -1,0 +1,114 @@
+{
+  "name": "task-manager-sonnet",
+  "displayName": "Todo Manager",
+  "description": "A task management extension that syncs todos from codebase and allows manual todo management",
+  "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",  "publisher": "artinmajdi",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "todoManager",
+          "title": "Todo Manager",
+          "icon": "$(list-ordered)"
+        }
+      ]
+    },
+    "views": {
+      "todoManager": [
+        {
+          "id": "todoManagerView",
+          "name": "TO-DO LIST",
+          "when": "workspaceHasFolder"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "todoManager.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "todoManager.sync",
+        "title": "Sync Todos from Codebase",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "todoManager.addTodo",
+        "title": "Add Todo",
+        "icon": "$(add)"
+      },
+      {
+        "command": "todoManager.deleteTodo",
+        "title": "Delete Todo",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "todoManager.toggleComplete",
+        "title": "Toggle Complete",
+        "icon": "$(check)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "todoManager.sync",
+          "when": "view == todoManagerView",
+          "group": "navigation"
+        },
+        {
+          "command": "todoManager.addTodo",
+          "when": "view == todoManagerView",
+          "group": "navigation"
+        },
+        {
+          "command": "todoManager.refresh",
+          "when": "view == todoManagerView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "todoManager.toggleComplete",
+          "when": "view == todoManagerView",
+          "group": "inline"
+        },
+        {
+          "command": "todoManager.deleteTodo",
+          "when": "view == todoManagerView",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.96.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
