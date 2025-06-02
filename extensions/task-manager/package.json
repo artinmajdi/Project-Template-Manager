@@ -1,5 +1,5 @@
 {
-  "name": "task-manager-sonnet",
+  "name": "task-manager",
   "displayName": "Todo Manager",
   "description": "A task management extension that syncs todos from codebase and allows manual todo management",
   "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",  "publisher": "artinmajdi",
