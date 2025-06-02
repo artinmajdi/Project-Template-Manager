@@ -1,46 +1,52 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=64.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name        = "te_koa"
-version     = "0.1.0"
-description = "A data science and machine learning framework for nursing research"
-readme      = "README.md"
-authors     = [ {name = "Artin Majdi", email = "msm2024@gmail.com"} ]
-license     = {text = "MIT"}
+name = "pythonic_template"
+version = "1.0.0"
+description = "A pythonic template for pythonic projects"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [ {name = "name", email = "email@domain.com"} ]
+license = {text = "MIT"}
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Healthcare Industry",
-    "License :: Other/Proprietary License",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-keywords = ["nursing research", "healthcare", "AI", "medical analysis"]
-requires-python = ">=3.10"
-dynamic = ["dependencies"]
-
-[project.urls]
-Homepage      = "https://github.com/artinmajdi/te_koa"
-Documentation = "https://github.com/artinmajdi/te_koa/docs"
-Repository    = "https://github.com/artinmajdi/te_koa.git"
-Issues        = "https://github.com/artinmajdi/te_koa/issues"
-
-[project.scripts]
-te_koa = "te_koa.main:main"
-te_koa-dashboard = "te_koa.cli:run_dashboard"
+dependencies = [
+    "dotenv>=0.9.9",
+]
 
 [tool.setuptools]
-packages = ["te_koa"]
+
+package-dir = {"" = "project_src"}
+packages    = ["pythonic_template"]
+
+
+[project.urls]
+Homepage      = "https://github.com/username/pythonic_template"
+Documentation = "https://pythonic-template.readthedocs.io/"
+Repository    = "https://github.com/username/pythonic_template.git"
+Issues        = "https://github.com/username/pythonic_template/issues"
+
+
+[project.scripts]
+ui = "pythonic_template.cli:run_script"
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["project_src"]
+addopts = "-v"
 include-package-data = true
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
-
-[tool.setuptools.package-data]
-te_koa = ["**/*.py"]
-
-
