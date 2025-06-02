@@ -1,9 +1,10 @@
 {
-  "name": "task-manager",
-  "displayName": "Todo Manager",
+  "name": "todo-task-tracker",
+  "displayName": "Todo Task Tracker",
   "description": "A task management extension that syncs todos from codebase and allows manual todo management",
-  "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",  "publisher": "artinmajdi",
-  "version": "0.1.0",
+  "repository": "https://github.com/artinmajdi/Project-Template-Manager.git",
+  "publisher": "artinmajdi",
+  "version": "0.1.2",
   "engines": {
     "vscode": "^1.96.0"
   },
