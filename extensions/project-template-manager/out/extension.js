@@ -101,6 +101,77 @@ function createStructureRecursive(baseDir, structure) {
         }
     }
 }
+// Helper function to get target directory from user
+async function getTargetDirectory(context, preselectedPath) {
+    let targetDirectory;
+    const activeEditor = vscode.window.activeTextEditor;
+    let quickPickItems = [];
+    let activeFileDir;
+    if (activeEditor) {
+        activeFileDir = path.dirname(activeEditor.document.uri.fsPath);
+        quickPickItems.push({
+            label: `Copy to directory of current file: ${path.basename(activeFileDir)}`,
+            description: activeFileDir,
+            detail: "Copies to the folder containing the currently open file."
+        });
+    }
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    let defaultWorkspacePath;
+    if (workspaceFolders && workspaceFolders.length > 0) {
+        defaultWorkspacePath = workspaceFolders[0].uri.fsPath;
+    }
+    quickPickItems.push({
+        label: "Select a specific folder...",
+        description: "Opens a dialog to choose a folder.",
+        detail: "Allows you to browse and select any folder in your filesystem."
+    });
+    if (preselectedPath && preselectedPath !== activeFileDir && preselectedPath !== defaultWorkspacePath) {
+        // Add preselectedPath if it's different from active file's dir or workspace root
+        quickPickItems.unshift({
+            label: `Copy to previously selected: ${path.basename(preselectedPath)}`,
+            description: preselectedPath,
+            detail: "Copies to the folder you last chose."
+        });
+    }
+    const selection = await vscode.window.showQuickPick(quickPickItems, {
+        placeHolder: "Choose where to copy the template item(s)",
+        ignoreFocusOut: true,
+    });
+    if (!selection) {
+        return undefined; // User cancelled
+    }
+    if (selection.description === activeFileDir) {
+        targetDirectory = activeFileDir;
+    }
+    else if (selection.description === preselectedPath) {
+        targetDirectory = preselectedPath;
+    }
+    else if (selection.label === "Select a specific folder...") {
+        const options = {
+            canSelectMany: false,
+            openLabel: 'Select Destination Folder',
+            canSelectFiles: false,
+            canSelectFolders: true,
+            defaultUri: defaultWorkspacePath ? vscode.Uri.file(defaultWorkspacePath) : undefined
+        };
+        const folderUri = await vscode.window.showOpenDialog(options);
+        if (folderUri && folderUri.length > 0) {
+            targetDirectory = folderUri[0].fsPath;
+        }
+        else {
+            return undefined; // User cancelled dialog
+        }
+    }
+    else if (defaultWorkspacePath && selection.description === defaultWorkspacePath) { // Fallback or if added explicitly
+        targetDirectory = defaultWorkspacePath;
+    }
+    if (targetDirectory) {
+        // Store this choice for next time, perhaps in extension context's global state
+        // For now, we can just use it directly.
+        // await context.globalState.update('lastSelectedCopyPath', targetDirectory);
+    }
+    return targetDirectory;
+}
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 function activate(context) {
@@ -145,6 +216,22 @@ function activate(context) {
         context.globalState.update('lastKnownVersion', extensionVersion);
     }
     const excludeItems = ['.git', '.vscode', 'node_modules', 'out', '.DS_Store', '.vscodeignore', '.gitignore', 'package.json', 'package-lock.json', 'tsconfig.json', 'eslint.config.mjs', '.vscode-test.mjs', 'CHANGELOG.md', 'vsc-extension-quickstart.md']; // Items to exclude when copying
+    // Command: Preview Template File
+    const previewTemplateFileCommand = vscode.commands.registerCommand('project-template-manager.previewTemplateFile', async (item) => {
+        if (!item || !item.isFile || !item.templatePath) {
+            vscode.window.showErrorMessage('Cannot preview: Invalid file selected.');
+            return;
+        }
+        try {
+            const fileContent = await fs.promises.readFile(item.templatePath, 'utf-8');
+            const document = await vscode.workspace.openTextDocument({ content: fileContent, language: path.extname(item.templatePath).substring(1) });
+            await vscode.window.showTextDocument(document, { preview: true, viewColumn: vscode.ViewColumn.Active });
+        }
+        catch (error) {
+            console.error('Error previewing file:', error);
+            vscode.window.showErrorMessage(`Error previewing file "${item.label}": ${error.message}`);
+        }
+    });
     // Command: Create Full Project
     const createFullProjectCommand = vscode.commands.registerCommand('project-template-manager.createFullProject', async (node) => {
         let selectedTemplate;
@@ -227,13 +314,11 @@ function activate(context) {
     });
     // Command: Add Template Items
     const addTemplateItemsCommand = vscode.commands.registerCommand('project-template-manager.addTemplateItems', async (node) => {
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            vscode.window.showErrorMessage('Cannot add template items: Please open a workspace folder first.');
+        const targetWorkspaceDir = await getTargetDirectory(context);
+        if (!targetWorkspaceDir) {
+            vscode.window.showInformationMessage('Add template items cancelled: No destination folder selected.');
             return;
         }
-        // For simplicity, using the first workspace folder if multiple exist
-        const targetWorkspaceDir = workspaceFolders[0].uri.fsPath;
         let selectedTemplate;
         // If command was triggered from the tree view
         if (node && node.contextValue === 'template') {
@@ -337,13 +422,11 @@ function activate(context) {
             vscode.window.showErrorMessage('Please select a file or folder to copy.');
             return;
         }
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) {
-            vscode.window.showErrorMessage('Cannot copy item: Please open a workspace folder first.');
+        const targetWorkspaceDir = await getTargetDirectory(context);
+        if (!targetWorkspaceDir) {
+            vscode.window.showInformationMessage('Copy operation cancelled: No destination folder selected.');
             return;
         }
-        // For simplicity, using the first workspace folder if multiple exist
-        const targetWorkspaceDir = workspaceFolders[0].uri.fsPath;
         const itemName = node.label;
         const itemPath = node.templatePath;
         const isFile = node.contextValue === 'templateFile';
@@ -449,7 +532,7 @@ function activate(context) {
             }
         }
     });
-    context.subscriptions.push(createFullProjectCommand, addTemplateItemsCommand, copyTemplateItemCommand, refreshTemplatesCommand, addTemplateCommand, deleteTemplateCommand);
+    context.subscriptions.push(createFullProjectCommand, addTemplateItemsCommand, copyTemplateItemCommand, refreshTemplatesCommand, addTemplateCommand, deleteTemplateCommand, previewTemplateFileCommand);
     console.log('Extension "project-template-manager" is now active!');
 }
 // This method is called when your extension is deactivated

@@ -18,6 +18,11 @@ export class TemplateTreeItem extends vscode.TreeItem {
         if (isFile) {
             this.iconPath = new vscode.ThemeIcon('file');
             this.contextValue = 'templateFile';
+            this.command = {
+                command: 'project-template-manager.previewTemplateFile',
+                title: "Preview File",
+                arguments: [this] // Pass the tree item itself
+            };
         } else if (isRoot) {
             this.iconPath = new vscode.ThemeIcon('folder-opened');
         } else {
