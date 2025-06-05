@@ -1,77 +1,65 @@
 # Project Template Manager
 
-[![Version](https://img.shields.io/badge/version-1.4.9-blue.svg)](https://marketplace.visualstudio.com/items?itemName=artinmajdi.project-template-manager)
+[![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)](https://marketplace.visualstudio.com/items?itemName=artinmajdi.project-template-manager)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.101.0-blue.svg)](https://code.visualstudio.com/updates/v1_96)
 
 ## Overview
 
-Project Template Manager streamlines your workflow by providing a structured way to create new projects and add template components to existing ones. Save time and ensure consistency by reusing your preferred project structures, configurations, and boilerplate code.
+Project Template Manager streamlines your development workflow by allowing you to create, manage, and reuse project templates directly within VS Code. Say goodbye to repetitive setup and hello to consistent, professional project structures. Whether you're scaffolding a new application or adding components to an existing one, this extension saves you time and effort.
 
 ![Template Explorer](resources/screenshot.png)
 
-## Features
+*Note: The screenshot above may not reflect the latest UI updates.*
 
-- **Dedicated Template Explorer** - Access all your templates from the VS Code sidebar
-- **Create Projects From Templates** - Generate entire project structures with a few clicks
-- **Add Template Components** - Selectively incorporate template files/folders into existing projects
-- **Template Management** - Easily add, remove, and organize your templates
-- **Professional Organization** - Maintain consistent project structures across your work
+## Key Features
 
-## Getting Started
+- **Dedicated Template Explorer**: Access all your project templates from a dedicated view in the VS Code sidebar for easy navigation.
+- **Live File Previews**: Click on any file within a template to view its content in a preview tab before deciding to use it. No need to copy first!
+- **Flexible File Copying**: When adding a template file or folder, intelligently choose your destination. Copy to the directory of your currently open file, or browse to any folder in your workspace.
+- **Full Project Scaffolding**: Generate a complete, ready-to-code project structure from a template with a single command.
+- **Cherry-Pick Components**: Selectively add individual files or entire folders from a template into your existing workspace.
+- **Easy Template Management**: Effortlessly add new templates from your existing projects or remove templates you no longer need.
 
-### Installation
+## Usage Walkthrough
 
-1. Open VS Code
-2. Go to Extensions (Ctrl+Shift+X or Cmd+Shift+X)
-3. Search for "Project Template Manager"
-4. Click Install
+### 1. Exploring Your Templates
+- Open the **Template Explorer** by clicking the Project Templates icon in the Activity Bar.
+- Here, you'll see a list of all your available templates. You can expand each template to view its file and folder structure.
 
-### Using the Template Explorer
+### 2. Previewing Template Files
+- In the Template Explorer, simply click on any file.
+- A read-only preview of the file will open, allowing you to inspect its contents without adding it to your project.
 
-The Template Explorer provides quick access to all your templates and template management functions:
+### 3. Adding Template Items to Your Workspace
+There are two ways to add items to your project:
 
-1. Click the Project Templates icon in the Activity Bar to open the Template Explorer
-2. View available templates in the explorer panel
-3. Use the "+" button to add new templates
-4. Right-click on templates for available actions
+**A) Copying a Single File or Folder:**
+1. In the Template Explorer, right-click the file or folder you want.
+2. Select **"Copy to Workspace"**.
+3. A prompt will appear asking where you'd like to copy the item:
+    - Choose the directory of your currently active file.
+    - Select a different folder using the file dialog.
 
-### Creating a New Project
+**B) Adding Multiple Items from a Template:**
+1. Right-click the root of a template and select **"Add Files/Folders from Template"**.
+2. A checklist of all items in the template will appear. Select everything you need.
+3. You will then be prompted to choose the destination folder, just like with a single item copy.
 
-1. Right-click on a template in the Template Explorer and select "Create Full Project from Template"
-   - *Alternatively:* Use the Command Palette (Ctrl+Shift+P / Cmd+Shift+P) and type "Create Full Project from Template"
-2. Select a destination folder
-3. Enter a name for your new project
-4. Your new project will be created with all files and structure from the template
+### 4. Creating a New Project
+1. In the Template Explorer, right-click the template you want to build from.
+2. Select **"Create Full Project from Template"**.
+3. Choose a parent directory and enter a name for your new project folder.
+4. The extension will create the new project and you can open it in a new VS Code window.
 
-### Adding Template Items to Existing Projects
+### 5. Managing Your Templates
 
-1. Open the folder/workspace where you want to add template items
-2. Right-click on a template in the Template Explorer and select "Add Files/Folders from Template"
-   - *Alternatively:* Use the Command Palette and type "Add Files/Folders from Template"
-3. Select which files or folders from the template to add
-4. The selected items will be copied to your current workspace
-
-### Managing Your Templates
-
-#### Adding a Template
-1. Click the "+" button in the Template Explorer title bar
-2. Select a folder to use as a template
-3. Enter a name for the template
-
-#### Copying Template Files/Folders
-1. Expand a template to see its contents
-2. Right-click on any file or folder
-3. Select "Copy to Workspace" to add it to your current project
-
-#### Deleting a Template
-1. Right-click on a template in the Template Explorer
-2. Select "Delete Template"
-3. Confirm the deletion
+- **Add a New Template**: Click the `+` icon at the top of the Template Explorer, select a folder on your machine, and give your new template a name.
+- **Delete a Template**: Right-click a template and select **"Delete Template"**.
 
 ## Included Template
 
-The extension comes with a default "pythonic_template" that demonstrates a well-structured Python project with:
+The extension comes with a default **"pythonic_template"** that demonstrates a well-structured Python project with:
 
 - Standardized project layout
 - Configuration management
