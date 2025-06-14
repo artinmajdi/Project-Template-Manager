@@ -538,7 +538,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Command: Delete Template
 	const deleteTemplateCommand = vscode.commands.registerCommand('project-template-manager.deleteTemplate', async (node?: TemplateTreeItem) => {
-		if (!node || node.contextValue !== 'template') {
+		if (node && node.contextValue === 'template') {
 			vscode.window.showErrorMessage('Please select a template to delete from the template explorer.');
 			return;
 		}

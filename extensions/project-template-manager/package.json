@@ -89,7 +89,7 @@
         },
         {
           "command": "project-template-manager.deleteTemplate",
-          "when": "view == projectTemplateExplorer && viewItem == template",
+          "when": "view == projectTemplateExplorer && (viewItem == templateFile || viewItem == templateFolder)",
           "group": "inline"
         },
         {
