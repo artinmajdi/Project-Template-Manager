@@ -68,7 +68,7 @@ class TemplateTreeItem extends vscode.TreeItem {
         }
         else {
             this.iconPath = new vscode.ThemeIcon('folder');
-            if (!isRoot && contextValue !== 'category') {
+            if (!isRoot && contextValue !== 'category' && contextValue !== 'template') {
                 this.contextValue = 'templateFolder';
             }
         }
